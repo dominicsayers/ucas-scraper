@@ -1,7 +1,7 @@
 [project]
 name = "ucas-scraper"
 version = "0.1.0"
-description = "Add your description here"
+description = "Fetch course data from the UCAS (the UK Universities and Colleges Admissions Service) website"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
