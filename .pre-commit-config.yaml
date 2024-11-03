@@ -26,8 +26,8 @@ repos:
 - repo: https://github.com/AliYmn/conventional-commits-check
   rev: v2.0.5
   hooks:
-    - id: conventional-commits-check
-      stages: [commit-msg]
+  - id: conventional-commits-check
+    stages: [commit-msg]
 - repo: https://github.com/pre-commit/mirrors-mypy
   rev: v1.13.0
   hooks:
