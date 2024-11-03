@@ -1,0 +1,20 @@
+name: pre-commit
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: pre-commit checks
+        run: |
+          pip install uv
+          uv run pre-commit run --all-files
