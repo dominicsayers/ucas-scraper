@@ -18,8 +18,13 @@ repos:
   - id: ruff
   - id: ruff-format
 - repo: https://github.com/executablebooks/mdformat
-  rev: 0.7.13
+  rev: 0.7.18
   hooks:
   - id: mdformat
     additional_dependencies:
     - mdformat-ruff
+- repo: https://github.com/AliYmn/conventional-commits-check
+  rev: v2.0.5
+  hooks:
+    - id: conventional-commits-check
+      stages: [commit-msg]
