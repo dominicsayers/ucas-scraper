@@ -11,6 +11,18 @@ wheels = [
 ]
 
 [[package]]
+name = "conventional-commits-check"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pre-commit" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d8/58/86b1b294b7a419a7b42c9c4a7910f3d0ac7c6a966b94b55f0c1b3f9a94c1/conventional_commits_check-2.3.0.tar.gz", hash = "sha256:f7af0e543385b9193836e1a56a6b171286774ca3d1bbf737dffc2c9628f072f1", size = 7881 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/88/a1/fa9ebfcd6c3a8a1311e80205242a8798009ecaf86ac3ad73730e999eb3c9/conventional_commits_check-2.3.0-py3-none-any.whl", hash = "sha256:51ebc4645ce298a86189f3c14a833d97e166475dfffc194ebb0b81ace8f20d1e", size = 9017 },
+]
+
+[[package]]
 name = "distlib"
 version = "0.3.9"
 source = { registry = "https://pypi.org/simple" }
@@ -156,6 +168,7 @@ source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
+    { name = "conventional-commits-check" },
     { name = "mypy" },
     { name = "pre-commit" },
     { name = "ruff" },
@@ -165,6 +178,7 @@ dev = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "conventional-commits-check", specifier = ">=2.3.0" },
     { name = "mypy", specifier = ">=1.13.0" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "ruff", specifier = ">=0.7.2" },
