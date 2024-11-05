@@ -6,7 +6,7 @@ import csv
 from typing import Any
 from urllib.parse import quote
 from bs4 import BeautifulSoup
-from bs4 import Tag
+from bs4.css import CSS
 
 
 class Search:
@@ -138,21 +138,21 @@ class Search:
 
         return new_courses
 
-    def __get_text_from(self, html: Tag | Any | None, selector: str) -> str:
-        if type(html) is not Tag:
+    def __get_text_from(self, html: CSS | Any | None, selector: str) -> str:
+        if type(html) is not CSS:
             return ""
 
         try:
-            return str(html.select(selector)[0].string)
+            return str(html.select(selector)[0].string)  # type: ignore
         except IndexError:
             return ""
 
-    def __get_link_from(self, html: Tag | Any | None, selector: str) -> str:
-        if type(html) is not Tag:
+    def __get_link_from(self, html: CSS | Any | None, selector: str) -> str:
+        if type(html) is not CSS:
             return ""
 
         try:
-            return str(html.select(selector)[0].attrs["href"])
+            return str(html.select(selector)[0].attrs["href"])  # type: ignore
         except IndexError:
             return ""
 
@@ -162,4 +162,4 @@ class Search:
 
 if __name__ == "__main__":
     search = Search()
-    search.course_search("mechanical engineering")
+    search.course_search("physics")

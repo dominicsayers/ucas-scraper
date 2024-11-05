@@ -36,3 +36,4 @@ repos:
     additional_dependencies:
     - httpx
     - types-beautifulsoup4
+    - bs4
