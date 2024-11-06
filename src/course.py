@@ -26,7 +26,6 @@ class Course:
         if html.empty:
             return {}
 
-        content = html.select("section#entry-requirements-section li")
         summary = ParserContent(html.soup)
         details = self.DEFAULT_DETAILS
 
@@ -35,6 +34,8 @@ class Course:
         details["provider-url"] = summary.get_content_from(
             "a#provider-course-url", "link"
         )
+
+        content = html.select("section#entry-requirements-section li")
 
         for fragment in content:
             fragment_data = self.__get_data_from(fragment)
@@ -69,7 +70,8 @@ class Course:
 
 
 if __name__ == "__main__":
-    url = "https://digital.ucas.com/coursedisplay/courses/b68ba80a-b8c5-5f4c-09c8-72b7d5ef519c?academicYearId=2025"
+    url = "https://digital.ucas.com/coursedisplay/courses/e2b8d5b9-9b09-f90e-d7a3-8a7c9a607f6e?academicYearId=2025"
 
     course = Course(Fetcher(), url)
-    course.process()
+    details = course.process()
+    print(details)
