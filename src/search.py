@@ -1,18 +1,16 @@
 import os
-import re
-import time
-import httpx
-import csv
-from typing import Any
 from urllib.parse import quote
-from bs4 import BeautifulSoup
-from bs4.css import CSS
+from fetcher import Fetcher
+from output import Output
+from parser import Parser, ParserContent
+from course import Course
 
 
 class Search:
-    MAX_RETRIES = 3
     COLUMN_HEADERS = [
         "provider",
+        "institution-code",
+        "course-code",
         "location",
         "title",
         "qualification",
@@ -21,13 +19,18 @@ class Search:
         "study-mode",
         "entry-requirements",
         "entry-grades",
+        "a-level",
+        "ucas-tariff",
+        "a-level-text",
+        "ucas-tariff-text",
         "url",
+        "provider-url",
     ]
 
     def __init__(self) -> None:
-        self.path = "coursedisplay/results/courses"
         self.url = os.environ.get("UCAS_URL", "https://digital.ucas.com")
-        self.client = self.__get_client()
+        self.path = "coursedisplay/results/courses"
+        self.fetcher = Fetcher()
 
     def course_search(
         self,
@@ -35,6 +38,8 @@ class Search:
         study_year: int = 2025,
         destination: str = "Undergraduate",
     ) -> None:
+        output = Output(study_year)
+
         page = 0
         encoded_search_term = quote(search_term, safe="")
         encoded_destination = quote(destination, safe="")
@@ -47,119 +52,69 @@ class Search:
                 page, encoded_search_term, study_year, encoded_destination
             )
 
-            new_courses = self.__process_page(response)
+            new_courses = self.__process_page(response, output)
 
             if not new_courses:
                 break
 
             courses += new_courses
 
-        with open("tmp/courses.csv", "w", newline="") as output_file:
-            dict_writer = csv.DictWriter(output_file, self.COLUMN_HEADERS)
-            dict_writer.writeheader()
-            dict_writer.writerows(courses)
-
-        self.client.close()
+        output.write_csv(search_term, courses, self.COLUMN_HEADERS)
+        self.fetcher.close()
 
     def __fetch_page(
         self, page: int, search_term: str, study_year: int, destination: str
     ) -> bytes | None:
-        for _ in range(self.MAX_RETRIES):
-            try:
-                response = self.client.get(
-                    f"{self.url}/{self.path}?searchTerm={search_term}&studyYear={study_year}&destination={destination}&pageNumber={page}",
-                    follow_redirects=True,
-                )
+        return self.fetcher.fetch(
+            f"{self.url}/{self.path}?searchTerm={search_term}&studyYear={study_year}&destination={destination}&pageNumber={page}"
+        )
 
-                result = None
-
-                match response.status_code:
-                    case 200:
-                        result = response.content
-                        print(" ✅")
-                    case 404:
-                        print(" - doesn't exist")
-                    case _:
-                        content = re.sub("\\s+", " ", response.text)[:79]
-                        print(f" ❌ {response.status_code}: {content}")
-
-                return result
-            except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.RemoteProtocolError):
-                print(f"  Retrying page {page}")
-                time.sleep(1)
-                self.client = self.__get_client()
-                continue
-            else:
-                break
-        else:
-            with open("tmp/errors.txt", "a") as f:
-                f.write(f"{self.url}/{self.path}/{page}\n")
-
-            print(f"Error in {self.url}/{self.path}/{page}")
-
-            raise httpx.HTTPError("Unhandled HTTP error")
-
-    def __process_page(self, result: bytes | None) -> list[dict[str, str]]:
-        html = BeautifulSoup(str(result), "html.parser")
-
-        if not html.css:
+    def __process_page(
+        self, response: bytes | None, output: Output
+    ) -> list[dict[str, str]]:
+        if not response:
             return []
 
+        html = Parser(response)
         new_courses = []
 
-        for course_html in html.css.select("app-courses-view app-course article"):
+        for course_html in html.select("app-courses-view app-course article"):
+            item = ParserContent(course_html)
             course = {}
-            css = course_html.css
 
-            course["provider"] = self.__get_text_from(css, "div.provider")
-            course["location"] = self.__get_text_from(css, "div.location")
-            course["title"] = self.__get_text_from(css, "header h2")
-            course["qualification"] = self.__get_text_from(css, "div.qualification dd")
-            course["duration"] = self.__get_text_from(css, "div.duration dd")
-            course["start-date"] = self.__get_text_from(css, "div.start-date dd")
-            course["study-mode"] = self.__get_text_from(css, "div.study-mode dd")
-            course["entry-requirements"] = self.__get_text_from(
-                css, "div.ucas-points dd"
+            course["provider"] = item.get_content_from("div.provider")
+            course["location"] = item.get_content_from("div.location")
+            course["title"] = item.get_content_from("header h2")
+            course["qualification"] = item.get_content_from("div.qualification dd")
+            course["duration"] = item.get_content_from("div.duration dd")
+            course["start-date"] = item.get_content_from("div.start-date dd")
+            course["study-mode"] = item.get_content_from("div.study-mode dd")
+            course["entry-requirements"] = item.get_content_from("div.ucas-points dd")
+            course["entry-grades"] = item.get_content_from("div.entry-grades")
+            course["url"] = self.url + item.get_content_from(
+                "a.link-container__link", "link"
             )
-            course["entry-grades"] = self.__get_text_from(css, "div.entry-grades")
-            course["url"] = self.url + self.__get_link_from(
-                css, "a.link-container__link"
-            )
+
+            course_data = Course(Fetcher(), course["url"])
+            extra_details = course_data.process()
+
+            course["course-code"] = extra_details["course-code"]
+            course["institution-code"] = extra_details["institution-code"]
+            course["provider-url"] = extra_details["provider-url"]
+            course["ucas-tariff"] = extra_details["UCAS tariff"]["level"]
+            course["ucas-tariff-text"] = extra_details["UCAS tariff"]["text"]
+            course["a-level"] = extra_details["A level"]["level"]
+            course["a-level-text"] = extra_details["A level"]["text"]
 
             new_courses.append(course)
-
             print(f"📃 {course["provider"]}: {course["title"]}")
 
-            folder = f"tmp/courses/{course["provider"]}"
-            os.makedirs(folder, exist_ok=True)
-
-            with open(f"{folder}/{course["title"].replace("/","¦")}.html", "w") as f:
-                f.write(course_html.prettify())
+            output.write(course["provider"], course["title"], item.prettify())
+            output.write(course["provider"], course["title"], course)
 
         return new_courses
-
-    def __get_text_from(self, html: CSS | Any | None, selector: str) -> str:
-        if type(html) is not CSS:
-            return ""
-
-        try:
-            return str(html.select(selector)[0].string)  # type: ignore
-        except IndexError:
-            return ""
-
-    def __get_link_from(self, html: CSS | Any | None, selector: str) -> str:
-        if type(html) is not CSS:
-            return ""
-
-        try:
-            return str(html.select(selector)[0].attrs["href"])  # type: ignore
-        except IndexError:
-            return ""
-
-    def __get_client(self) -> httpx.Client:
-        return httpx.Client(http2=True, timeout=10.0)
 
 
 if __name__ == "__main__":
     search = Search()
-    search.course_search("physics")
+    search.course_search("engineering")
