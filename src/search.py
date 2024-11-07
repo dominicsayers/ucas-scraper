@@ -1,9 +1,11 @@
 import os
+import time
 from urllib.parse import quote
 from fetcher import Fetcher
 from output import Output
 from parser import Parser, ParserContent
 from course import Course
+from historic_grades import HistoricGrades
 
 
 class Search:
@@ -17,6 +19,10 @@ class Search:
         "duration",
         "start-date",
         "study-mode",
+        "most-common-grade",
+        "minimum-grade",
+        "maximum-grade",
+        "confirmation-rate",
         "entry-requirements",
         "entry-grades",
         "a-level",
@@ -31,6 +37,7 @@ class Search:
         self.url = os.environ.get("UCAS_URL", "https://digital.ucas.com")
         self.path = "coursedisplay/results/courses"
         self.fetcher = Fetcher()
+        self.counter = 0
 
     def course_search(
         self,
@@ -79,10 +86,16 @@ class Search:
         new_courses = []
 
         for course_html in html.select("app-courses-view app-course article"):
+            self.counter += 1
+
+            if self.counter > 10:
+                self.counter = 0
+                time.sleep(60)  # To defeat the historical grades rate limiter
+
             item = ParserContent(course_html)
             course = {}
 
-            course["provider"] = item.get_content_from("div.provider")
+            course["provider"] = item.get_content_from("div.provider").replace("\\", "")
             course["location"] = item.get_content_from("div.location")
             course["title"] = item.get_content_from("header h2")
             course["qualification"] = item.get_content_from("div.qualification dd")
@@ -95,7 +108,7 @@ class Search:
                 "a.link-container__link", "link"
             )
 
-            course_data = Course(Fetcher(), course["url"])
+            course_data = Course(self.fetcher, course["url"])
             extra_details = course_data.process()
 
             course["course-code"] = extra_details["course-code"]
@@ -105,6 +118,21 @@ class Search:
             course["ucas-tariff-text"] = extra_details["UCAS tariff"]["text"]
             course["a-level"] = extra_details["A level"]["level"]
             course["a-level-text"] = extra_details["A level"]["text"]
+
+            grades = HistoricGrades(self.fetcher, course["url"])
+
+            print(grades.historic_grades())
+            print(grades.confirmation_rate())
+
+            results_list = grades.historic_grades()["results"]
+            results = results_list[0] if results_list else {}
+            course["most-common-grade"] = results.get("mostCommonGrade", "")
+            course["minimum-grade"] = results.get("minimumGrade", "")
+            course["maximum-grade"] = results.get("maximumGrade", "")
+
+            results_list = grades.confirmation_rate()["results"]
+            results = results_list[0] if results_list else {}
+            course["confirmation-rate"] = results.get("confirmationRate", "")
 
             new_courses.append(course)
             print(f"📃 {course["provider"]}: {course["title"]}")
@@ -117,4 +145,4 @@ class Search:
 
 if __name__ == "__main__":
     search = Search()
-    search.course_search("engineering")
+    search.course_search("physics")

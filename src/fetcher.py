@@ -1,6 +1,9 @@
 import httpx
+import json
+import logging
 import re
 import time
+from typing import Any
 
 
 class Fetcher:
@@ -8,6 +11,12 @@ class Fetcher:
 
     def __init__(self) -> None:
         self.client = self.__get_client()
+
+        logging.basicConfig(
+            format="%(levelname)s [%(asctime)s] %(name)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+            level=logging.WARN,
+        )
 
     def close(self) -> None:
         self.client.close()
@@ -42,6 +51,20 @@ class Fetcher:
 
             print(f"Error fetching uri {uri}")
             raise httpx.HTTPError("Unhandled HTTP error")
+
+    def post(self, uri: str, payload: dict[str, Any], headers: dict[str, str]) -> bytes:
+        # The HTTPx documentation insists that `data` is passed as a `Mapping[str, Any]`
+        # but I can't make it work unless it's manually converted to a string, hence we
+        # need to ignore the typing on this line.
+        response = self.client.post(
+            uri,
+            data=json.dumps(payload),  # type: ignore
+            headers=headers,
+            follow_redirects=True,
+        )
+
+        print(response)
+        return response.content
 
     def __get_client(self) -> httpx.Client:
         return httpx.Client(http2=True, timeout=10.0)

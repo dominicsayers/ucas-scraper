@@ -32,7 +32,7 @@ class ParserContent:
                 case "link":
                     result = str(self.content.select(selector)[0].attrs["href"])
                 case _:
-                    raise Exception(f"Unknown type: {type}")
+                    raise TypeError(f"Unknown type: {type}")
 
             return result
         except IndexError:

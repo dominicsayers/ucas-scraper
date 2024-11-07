@@ -57,15 +57,15 @@ class Course:
         if type_and_level is None:
             return None
 
-        type, *level = type_and_level.split(" - ")
+        grade_type, *level = type_and_level.split(" - ")
 
-        if type not in ["UCAS tariff", "A level"]:
+        if grade_type not in ["UCAS tariff", "A level"]:
             return None
 
         if not level:
             level = [""]
 
-        return {"type": type, "level": level[0], "text": text}
+        return {"type": grade_type, "level": level[0], "text": text}
 
 
 if __name__ == "__main__":
