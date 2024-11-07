@@ -1,5 +1,4 @@
 import httpx
-import json
 import logging
 import re
 import time
@@ -21,11 +20,32 @@ class Fetcher:
     def close(self) -> None:
         self.client.close()
 
-    def fetch(self, uri: str) -> bytes | None:
+    def fetch(self, uri: str) -> bytes | int:
+        return self.request("get", uri, follow_redirects=True)
+
+    def post(
+        self, uri: str, payload: dict[str, Any], headers: dict[str, str]
+    ) -> bytes | int:
+        return self.request(
+            "post",
+            uri,
+            json=payload,
+            headers=headers,
+            follow_redirects=True,
+        )
+
+    def request(self, verb: str, uri: str, **kwargs: Any) -> bytes | int:
         for _ in range(self.MAX_RETRIES):
             try:
-                response = self.client.get(uri, follow_redirects=True)
-                result = None
+                match verb:
+                    case "get":
+                        response = self.client.get(uri, **kwargs)
+                    case "post":
+                        response = self.client.post(uri, **kwargs)
+                    case _:
+                        raise ValueError(f"Unknown verb {verb}")
+
+                result: bytes | int = response.status_code
 
                 match response.status_code:
                     case 200:
@@ -51,20 +71,6 @@ class Fetcher:
 
             print(f"Error fetching uri {uri}")
             raise httpx.HTTPError("Unhandled HTTP error")
-
-    def post(self, uri: str, payload: dict[str, Any], headers: dict[str, str]) -> bytes:
-        # The HTTPx documentation insists that `data` is passed as a `Mapping[str, Any]`
-        # but I can't make it work unless it's manually converted to a string, hence we
-        # need to ignore the typing on this line.
-        response = self.client.post(
-            uri,
-            data=json.dumps(payload),  # type: ignore
-            headers=headers,
-            follow_redirects=True,
-        )
-
-        print(response)
-        return response.content
 
     def __get_client(self) -> httpx.Client:
         return httpx.Client(http2=True, timeout=10.0)

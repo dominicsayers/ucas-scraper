@@ -22,7 +22,7 @@ class HistoricGrades:
         print(f"Fetching historic grades for course id {self.course_id}", end="")
         response = self.fetcher.fetch(url)
 
-        if not response:
+        if isinstance(response, int):
             return {}
 
         grade_data = dict(json.loads(response))
@@ -43,6 +43,9 @@ class HistoricGrades:
         response = self.fetcher.post(
             self.CONFIRMATION_RATE_URL, payload, self.CONFIRMATION_RATE_HEADERS
         )
+
+        if isinstance(response, int):
+            return {}
 
         grade_data = dict(json.loads(response))
         return grade_data

@@ -21,6 +21,9 @@ class Course:
         print(f"Fetching course from {self.url}", end="")
         response = self.fetcher.fetch(self.url)
 
+        if isinstance(response, int):
+            return {}
+
         html = Parser(response)
 
         if html.empty:

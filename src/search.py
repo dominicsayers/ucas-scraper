@@ -71,27 +71,21 @@ class Search:
 
     def __fetch_page(
         self, page: int, search_term: str, study_year: int, destination: str
-    ) -> bytes | None:
+    ) -> bytes | int:
         return self.fetcher.fetch(
             f"{self.url}/{self.path}?searchTerm={search_term}&studyYear={study_year}&destination={destination}&pageNumber={page}"
         )
 
     def __process_page(
-        self, response: bytes | None, output: Output
+        self, response: bytes | int, output: Output
     ) -> list[dict[str, str]]:
-        if not response:
+        if isinstance(response, int):
             return []
 
         html = Parser(response)
         new_courses = []
 
         for course_html in html.select("app-courses-view app-course article"):
-            self.counter += 1
-
-            if self.counter > 10:
-                self.counter = 0
-                time.sleep(60)  # To defeat the historical grades rate limiter
-
             item = ParserContent(course_html)
             course = {}
 
@@ -108,37 +102,59 @@ class Search:
                 "a.link-container__link", "link"
             )
 
+            output.write(course["provider"], course["title"], "source", item.prettify())
+            output.write(course["provider"], course["title"], "search", course)
+
             course_data = Course(self.fetcher, course["url"])
             extra_details = course_data.process()
+            course_extra = {}
 
-            course["course-code"] = extra_details["course-code"]
-            course["institution-code"] = extra_details["institution-code"]
-            course["provider-url"] = extra_details["provider-url"]
-            course["ucas-tariff"] = extra_details["UCAS tariff"]["level"]
-            course["ucas-tariff-text"] = extra_details["UCAS tariff"]["text"]
-            course["a-level"] = extra_details["A level"]["level"]
-            course["a-level-text"] = extra_details["A level"]["text"]
+            course_extra["course-code"] = extra_details["course-code"]
+            course_extra["institution-code"] = extra_details["institution-code"]
+            course_extra["provider-url"] = extra_details["provider-url"]
+            course_extra["ucas-tariff"] = extra_details["UCAS tariff"]["level"]
+            course_extra["ucas-tariff-text"] = extra_details["UCAS tariff"]["text"]
+            course_extra["a-level"] = extra_details["A level"]["level"]
+            course_extra["a-level-text"] = extra_details["A level"]["text"]
 
-            grades = HistoricGrades(self.fetcher, course["url"])
+            output.write(course["provider"], course["title"], "course", course_extra)
 
-            print(grades.historic_grades())
-            print(grades.confirmation_rate())
+            course_historic = output.read(
+                course["provider"], course["title"], "historic"
+            )
 
-            results_list = grades.historic_grades()["results"]
-            results = results_list[0] if results_list else {}
-            course["most-common-grade"] = results.get("mostCommonGrade", "")
-            course["minimum-grade"] = results.get("minimumGrade", "")
-            course["maximum-grade"] = results.get("maximumGrade", "")
+            if not course_historic:
+                self.counter += 1
 
-            results_list = grades.confirmation_rate()["results"]
-            results = results_list[0] if results_list else {}
-            course["confirmation-rate"] = results.get("confirmationRate", "")
+                if self.counter > 10:
+                    self.counter = 0
+                    time.sleep(
+                        60
+                    )  # To defeat the historical grades per-minute rate limiter
 
-            new_courses.append(course)
+                grades = HistoricGrades(self.fetcher, course["url"])
+                course_historic = {}
+
+                results_list = grades.historic_grades()["results"]
+                results = results_list[0] if results_list else {}
+                course_historic["most-common-grade"] = results.get(
+                    "mostCommonGrade", ""
+                )
+                course_historic["minimum-grade"] = results.get("minimumGrade", "")
+                course_historic["maximum-grade"] = results.get("maximumGrade", "")
+
+                results_list = grades.confirmation_rate()["results"]
+                results = results_list[0] if results_list else {}
+                course_historic["confirmation-rate"] = results.get(
+                    "confirmationRate", ""
+                )
+
+                output.write(
+                    course["provider"], course["title"], "historic", course_historic
+                )
+
+            new_courses.append(course | course_extra | course_historic)
             print(f"📃 {course["provider"]}: {course["title"]}")
-
-            output.write(course["provider"], course["title"], item.prettify())
-            output.write(course["provider"], course["title"], course)
 
         return new_courses
 
