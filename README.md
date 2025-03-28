@@ -2,6 +2,30 @@
 
 Fetch course data from the UCAS (the UK Universities and Colleges Admissions Service) website
 
+## Basic usage
+
+```python
+search_service = SearchService()
+search_service.search_courses("physics")
+```
+
+### Custom configuration
+
+```python
+config = SearchConfig(
+    url="https://custom.ucas.com", predicted_grades="AAB,ABB", study_year=2025
+)
+search_service = SearchService(config)
+search_service.search_courses("computer science")
+```
+
+### With a virtual environment
+
+```bash
+. .venv/bin/activate
+COURSE=physics STUDY_YEAR=2025 DESTINATION=Undergraduate PREDICTED_GRADES=ABC,BBC,BCC python src/search.py
+```
+
 ## Historical entry grades data
 
 GET [https://services.ucas.com/historic-grades-api/loggedOut/e2b8d5b9-9b09-f90e-d7a3-8a7c9a607f6e](https://services.ucas.com/historic-grades-api/loggedOut/e2b8d5b9-9b09-f90e-d7a3-8a7c9a607f6e)
