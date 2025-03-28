@@ -88,10 +88,10 @@ class Course:
         }
 
     def _update_requirement(self, requirement: dict[str, str]) -> None:
-        if requirement["type"] == list(self.details.VALID_GRADE_TYPES)[0]:
+        if requirement["type"] == "UCAS tariff":
             self.details.ucas_tariff = requirement["level"]
             self.details.ucas_tariff_text = requirement["text"]
-        elif requirement["type"] == list(self.details.VALID_GRADE_TYPES)[1]:
+        elif requirement["type"] == "A level":
             self.details.a_level = requirement["level"]
             self.details.a_level_text = requirement["text"]
 
