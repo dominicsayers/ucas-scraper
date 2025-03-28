@@ -1,14 +1,14 @@
 from typing import Any, Optional
 from bs4.element import Tag
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from fetcher import Fetcher
 from parser import Parser, ParserContent
 
 
 @dataclass
 class GradeRequirement:
-    level: str
-    text: str
+    level: str = ""
+    text: str = ""
 
 
 @dataclass
@@ -18,8 +18,12 @@ class CourseDetails:
     course_code: str = ""
     institution_code: str = ""
     provider_url: str = ""
-    ucas_tariff: GradeRequirement = GradeRequirement("Not accepted", "")
-    a_level: GradeRequirement = GradeRequirement("No data", "")
+    ucas_tariff: GradeRequirement = field(
+        default_factory=lambda: GradeRequirement("Not accepted", "")
+    )
+    a_level: GradeRequirement = field(
+        default_factory=lambda: GradeRequirement("No data", "")
+    )
 
 
 class Course:
