@@ -1,14 +1,8 @@
 from typing import Any, Optional
 from bs4.element import Tag
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from fetcher import Fetcher
 from parser import Parser, ParserContent
-
-
-@dataclass
-class GradeRequirement:
-    level: str = ""
-    text: str = ""
 
 
 @dataclass
@@ -18,12 +12,10 @@ class CourseDetails:
     course_code: str = ""
     institution_code: str = ""
     provider_url: str = ""
-    ucas_tariff: GradeRequirement = field(
-        default_factory=lambda: GradeRequirement("Not accepted", "")
-    )
-    a_level: GradeRequirement = field(
-        default_factory=lambda: GradeRequirement("No data", "")
-    )
+    ucas_tariff: str = "Not accepted"
+    a_level: str = "No data"
+    ucas_tariff_text: str = ""
+    a_level_text: str = ""
 
 
 class Course:
@@ -96,12 +88,12 @@ class Course:
         }
 
     def _update_requirement(self, requirement: dict[str, str]) -> None:
-        grade_req = GradeRequirement(requirement["level"], requirement["text"])
-
         if requirement["type"] == list(self.details.VALID_GRADE_TYPES)[0]:
-            self.details.ucas_tariff = grade_req
+            self.details.ucas_tariff = requirement["level"]
+            self.details.ucas_tariff_text = requirement["text"]
         elif requirement["type"] == list(self.details.VALID_GRADE_TYPES)[1]:
-            self.details.a_level = grade_req
+            self.details.a_level = requirement["level"]
+            self.details.a_level_text = requirement["text"]
 
 
 if __name__ == "__main__":
