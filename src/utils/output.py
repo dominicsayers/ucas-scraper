@@ -58,7 +58,7 @@ class CsvWriter(OutputWriter[list[dict[str, str]]]):
 class Output:
     """Manages file output operations with improved error handling and type safety"""
 
-    def __init__(self, top_level: Union[str, int]) -> None:
+    def __init__(self, top_level: Union[str, int] = "data") -> None:
         self.config = OutputConfig()
         self.top_level = str(top_level)
         self.base_path = Path(self.config.base_directory) / self.top_level

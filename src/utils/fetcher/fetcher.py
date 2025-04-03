@@ -1,87 +1,14 @@
-from dataclasses import dataclass
 from typing import Any, Optional, Union, Dict
-from enum import Enum
+from pathlib import Path
+import time
 import httpx
 import logging
-import re
-import time
-from pathlib import Path
-
-
-class HttpVerb(Enum):
-    """Supported HTTP verbs"""
-
-    GET = "get"
-    POST = "post"
-
-
-class HttpError(Exception):
-    """Custom exception for HTTP errors"""
-
-    pass
-
-
-@dataclass
-class FetcherConfig:
-    """Configuration for Fetcher"""
-
-    max_retries: int = 3
-    timeout: float = 10.0
-    error_log_path: str = "tmp/errors.txt"
-    http2_enabled: bool = True
-    log_level: int = logging.WARN
-    log_format: str = "%(levelname)s [%(asctime)s] %(name)s - %(message)s"
-    log_date_format: str = "%Y-%m-%d %H:%M:%S"
-
-
-@dataclass
-class ResponseHandler:
-    """Handles HTTP response processing"""
-
-    status_code: int
-    content: Optional[bytes] = None
-    text: Optional[str] = None
-
-    def process(self) -> Union[bytes, int]:
-        """Process response based on status code"""
-        match self.status_code:
-            case 200:
-                print(" ✅")
-                return self.content or b""
-            case 404:
-                print(" - doesn't exist")
-                return self.status_code
-            case _:
-                if self.text:
-                    content = re.sub("\\s+", " ", self.text)[:79]
-                    print(f" ❌ {self.status_code}: {content}")
-                return self.status_code
-
-
-class HttpClient:
-    """Wrapper for HTTP client operations"""
-
-    def __init__(self, config: FetcherConfig):
-        self.config = config
-        self.client = self._create_client()
-
-    def _create_client(self) -> httpx.Client:
-        """Create new HTTP client"""
-        return httpx.Client(
-            http2=self.config.http2_enabled, timeout=self.config.timeout
-        )
-
-    def close(self) -> None:
-        """Close HTTP client"""
-        self.client.close()
-
-    def get(self, url: str, **kwargs: Any) -> httpx.Response:
-        """Execute GET request"""
-        return self.client.get(url, **kwargs)
-
-    def post(self, url: str, **kwargs: Any) -> httpx.Response:
-        """Execute POST request"""
-        return self.client.post(url, **kwargs)
+import json
+from .http_verb import HttpVerb
+from .http_error import HttpError
+from .fetcher_config import FetcherConfig
+from .response_handler import ResponseHandler
+from .http_client import HttpClient
 
 
 class Fetcher:
@@ -96,9 +23,9 @@ class Fetcher:
         """
         self.config = config or FetcherConfig()
         self.client = HttpClient(self.config)
-        self._setup_logging()
+        self.__setup_logging()
 
-    def _setup_logging(self) -> None:
+    def __setup_logging(self) -> None:
         """Configure logging"""
         logging.basicConfig(
             format=self.config.log_format,
@@ -110,6 +37,42 @@ class Fetcher:
     def close(self) -> None:
         """Clean up resources"""
         self.client.close()
+
+    def fetch_json(self, uri: str) -> dict[str, Any]:
+        """
+        Fetch JSON from URI using GET
+
+        Args:
+            uri: URI to fetch
+
+        Returns:
+            JSON response
+
+        Raises:
+            HttpError: If request fails after retries
+        """
+        response = self.fetch(uri)
+
+        if isinstance(response, int):
+            raise HttpError(uri, response)
+
+        if not response:
+            return {}
+
+        try:
+            return dict(json.loads(response))
+        except json.JSONDecodeError as e:
+            print(f"\nError decoding JSON response: {e}")
+            return {}
+
+    def fetch_json_with_rate_limit(
+        self, uri: str, rate_limit_type: str = "universal"
+    ) -> dict[str, Any]:
+        """
+        Fetch content from URI with rate limiting
+        """
+        self.__apply_rate_limit(rate_limit_type)
+        return self.fetch_json(uri)
 
     def fetch(self, uri: str) -> Union[bytes, int, None]:
         """
@@ -125,6 +88,15 @@ class Fetcher:
             HttpError: If request fails after retries
         """
         return self.request(HttpVerb.GET, uri, follow_redirects=True)
+
+    def fetch_with_rate_limit(
+        self, uri: str, rate_limit_type: str = "universal"
+    ) -> Union[bytes, int, None]:
+        """
+        Fetch content from URI with rate limiting
+        """
+        self.__apply_rate_limit(rate_limit_type)
+        return self.fetch(uri)
 
     def post(
         self, uri: str, payload: Dict[str, Any], headers: Dict[str, str]
@@ -151,6 +123,19 @@ class Fetcher:
             follow_redirects=True,
         )
 
+    def post_with_rate_limit(
+        self,
+        uri: str,
+        payload: Dict[str, Any],
+        headers: Dict[str, str],
+        rate_limit_type: str = "universal",
+    ) -> Union[bytes, int, None]:
+        """
+        Fetch content from URI with rate limiting
+        """
+        self.__apply_rate_limit(rate_limit_type)
+        return self.post(uri, payload, headers)
+
     def request(
         self, verb: HttpVerb, uri: str, **kwargs: Any
     ) -> Union[bytes, int, None]:
@@ -171,7 +156,7 @@ class Fetcher:
         """
         for attempt in range(self.config.max_retries):
             try:
-                response = self._execute_request(verb, uri, **kwargs)
+                response = self.__execute_request(verb, uri, **kwargs)
                 return ResponseHandler(
                     response.status_code, response.content, response.text
                 ).process()
@@ -181,13 +166,25 @@ class Fetcher:
                 httpx.ReadTimeout,
                 httpx.RemoteProtocolError,
             ) as e:
-                self._handle_retry(uri, attempt, e)
+                self.__handle_retry(uri, attempt, e)
                 continue
 
-        self._handle_failure(uri)
+        self.__handle_failure(uri)
         return None
 
-    def _execute_request(
+    def __apply_rate_limit(self, limit_type: str) -> None:
+        """Apply rate limiting"""
+        if limit_type not in self.config.rate_limits:
+            raise KeyError(f"Rate limit type {limit_type} not found")
+
+        rate_limit = self.config.rate_limits[limit_type]
+        rate_limit.counter += 1
+
+        if rate_limit.counter > rate_limit.requests:
+            rate_limit.counter = 0
+            time.sleep(rate_limit.seconds)
+
+    def __execute_request(
         self, verb: HttpVerb, uri: str, **kwargs: Any
     ) -> httpx.Response:
         """Execute single HTTP request"""
@@ -199,7 +196,7 @@ class Fetcher:
             case _:
                 raise ValueError(f"Unknown HTTP verb: {verb}")
 
-    def _handle_retry(self, uri: str, attempt: int, error: Exception) -> None:
+    def __handle_retry(self, uri: str, attempt: int, error: Exception) -> None:
         """Handle request retry"""
         self.logger.warning(
             f"Attempt {attempt + 1}/{self.config.max_retries} failed for {uri}: {error}"
@@ -208,14 +205,14 @@ class Fetcher:
         time.sleep(1)
         self.client = HttpClient(self.config)
 
-    def _handle_failure(self, uri: str) -> None:
+    def __handle_failure(self, uri: str) -> None:
         """Handle complete request failure"""
-        self._log_error(uri)
+        self.__log_error(uri)
         error_msg = f"Failed to fetch {uri} after {self.config.max_retries} attempts"
         self.logger.error(error_msg)
         raise HttpError(error_msg)
 
-    def _log_error(self, uri: str) -> None:
+    def __log_error(self, uri: str) -> None:
         """Log error to file"""
         error_dir = Path(self.config.error_log_path).parent
         error_dir.mkdir(parents=True, exist_ok=True)

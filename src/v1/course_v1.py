@@ -1,8 +1,8 @@
 from typing import Any, Optional
 from bs4.element import Tag
 from dataclasses import asdict, dataclass
-from fetcher import Fetcher
-from parser import Parser, ParserContent
+from utils.fetcher.fetcher import Fetcher
+from .parser import Parser, ParserContent
 
 
 @dataclass
@@ -37,7 +37,6 @@ class Course:
 
             return asdict(self.details)
         except Exception as e:
-            raise e
             print(f"Error processing course: {str(e)}")
             return asdict(self.details)
 
@@ -47,6 +46,7 @@ class Course:
             return None
 
         html = Parser(response)
+        print(html.soup)
         return None if html.empty else html
 
     def _extract_basic_details(self, html: Parser) -> None:
@@ -97,7 +97,9 @@ class Course:
 
 
 if __name__ == "__main__":
-    url = "https://digital.ucas.com/coursedisplay/courses/b68ba80a-b8c5-5f4c-09c8-72b7d5ef519c?academicYearId=2025"
+    url = "https://digital.ucas.com/coursedisplay/courses/508f8040-1309-e5cb-ff57-c4ff9c902ed3?academicYearId=2025"
 
     course = Course(Fetcher(), url)
     course.process()
+
+    print(course.details)

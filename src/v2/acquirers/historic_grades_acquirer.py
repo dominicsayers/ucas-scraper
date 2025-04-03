@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 from enum import Enum
 import json
-from fetcher import Fetcher
-from course_id_parser import CourseIdParser
+from utils.fetcher.fetcher import Fetcher
 
 
 class QualificationType(Enum):
@@ -37,39 +36,35 @@ class ApiHeaders:
 class HistoricGrades:
     """Handles fetching and processing of historic grade data from UCAS"""
 
-    def __init__(self, fetcher: Fetcher, course_id: Optional[str] = None) -> None:
+    def __init__(self, fetcher: Fetcher = Fetcher()) -> None:
         """
         Initialize HistoricGrades instance.
 
         Args:
             fetcher: Fetcher instance for making HTTP requests
-            course_id: Course ID or URL (optional)
         """
-        self.course_id = CourseIdParser.parse(course_id) if course_id else None
         self.fetcher = fetcher
 
-    def historic_grades(self) -> dict[str, Any]:
+    def historic_grades(self, ucas_id: str) -> dict[str, Any]:
         """
         Fetch historic grades for the course.
 
         Returns:
             Dictionary containing historic grade data
         """
-        if not self.course_id:
-            return {}
-
-        url = ApiConfig.get_historic_grades_url(self.course_id)
-        print(f"Fetching historic grades for course id {self.course_id}", end="")
+        url = ApiConfig.get_historic_grades_url(ucas_id)
+        print(f"Fetching historic grades for course id {ucas_id}", end="")
 
         try:
-            response = self.fetcher.fetch(url)
-            return self._process_response(response)
+            return self.fetcher.fetch_json_with_rate_limit(url)
         except Exception as e:
+            raise e
             print(f"\nError fetching historic grades: {e}")
             return {}
 
     def confirmation_rate(
         self,
+        ucas_id: str,
         predicted_grades: str,
         qualification_type: QualificationType = QualificationType.A_LEVEL,
     ) -> dict[str, Any]:
@@ -83,48 +78,25 @@ class HistoricGrades:
         Returns:
             Dictionary containing confirmation rate data
         """
-        if not self.course_id:
-            return {}
-
         print(
-            f"Fetching confirmation rate at {predicted_grades} for course id {self.course_id}",
+            f"Fetching confirmation rate at {predicted_grades} for course id {ucas_id}",
             end="",
         )
 
         payload = self._build_confirmation_rate_payload(
-            predicted_grades, qualification_type
+            ucas_id, predicted_grades, qualification_type
         )
 
         try:
-            response = self.fetcher.post(
+            response = self.fetcher.post_with_rate_limit(
                 ApiConfig.LOGGED_IN_ENDPOINT, payload, ApiHeaders.CONFIRMATION_RATE
             )
-            return self._process_response(response)
         except Exception as e:
+            raise e
             print(f"\nError fetching confirmation rate: {e}")
             return {}
 
-    def _build_confirmation_rate_payload(
-        self, predicted_grades: str, qualification_type: QualificationType
-    ) -> dict[str, Any]:
-        """Build payload for confirmation rate request"""
-        return {
-            "courseIds": [self.course_id],
-            "qualificationType": qualification_type.value,
-            "grade": predicted_grades,
-        }
-
-    def _process_response(self, response: Any) -> dict[str, Any]:
-        """
-        Process API response and convert to dictionary.
-
-        Args:
-            response: Raw API response
-
-        Returns:
-            Processed response as dictionary
-        """
-        if isinstance(response, int):
+        if not response or isinstance(response, int):
             return {}
 
         try:
@@ -133,18 +105,28 @@ class HistoricGrades:
             print(f"\nError decoding JSON response: {e}")
             return {}
 
+    def _build_confirmation_rate_payload(
+        self, ucas_id: str, predicted_grades: str, qualification_type: QualificationType
+    ) -> dict[str, Any]:
+        """Build payload for confirmation rate request"""
+        return {
+            "courseIds": [ucas_id],
+            "qualificationType": qualification_type.value,
+            "grade": predicted_grades,
+        }
+
 
 def main() -> None:
     """Example usage of HistoricGrades class"""
-    url = "https://digital.ucas.com/coursedisplay/courses/e2b8d5b9-9b09-f90e-d7a3-8a7c9a607f6e?academicYearId=2025"
-    grades = HistoricGrades(Fetcher(), url)
+    ucas_id = "508f8040-1309-e5cb-ff57-c4ff9c902ed3"
+    historic_grades_api = HistoricGrades(Fetcher())
 
     # Fetch historic grades
-    historic_data = grades.historic_grades()
+    historic_data = historic_grades_api.historic_grades(ucas_id)
     print(historic_data)
 
     # Fetch confirmation rate for specific grades
-    confirmation_data = grades.confirmation_rate("AAB")
+    confirmation_data = historic_grades_api.confirmation_rate(ucas_id, "AAB")
     print(confirmation_data)
 
 
