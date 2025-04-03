@@ -155,32 +155,49 @@ class Fetcher:
             ValueError: If verb is unknown
         """
         for attempt in range(self.config.max_retries):
-            try:
-                response = self.__execute_request(verb, uri, **kwargs)
-                return ResponseHandler(
-                    response.status_code, response.content, response.text
-                ).process()
+            while True:
+                try:
+                    response = self.__execute_request(verb, uri, **kwargs)
+                    result = ResponseHandler(
+                        response.status_code, response.content, response.text
+                    ).process()
 
-            except (
-                httpx.ConnectTimeout,
-                httpx.ReadTimeout,
-                httpx.RemoteProtocolError,
-            ) as e:
-                self.__handle_retry(uri, attempt, e)
-                continue
+                    if result == 429:
+                        self.__apply_rate_limit("universal", True)
+                        continue
+
+                    return result
+                except (
+                    httpx.ConnectTimeout,
+                    httpx.ReadTimeout,
+                    httpx.RemoteProtocolError,
+                ) as e:
+                    self.__handle_retry(uri, attempt, e)
+                    continue
 
         self.__handle_failure(uri)
         return None
 
-    def __apply_rate_limit(self, limit_type: str) -> None:
+    def __apply_rate_limit(
+        self, limit_type: str, encountered_rate_limit: bool = False
+    ) -> None:
         """Apply rate limiting"""
         if limit_type not in self.config.rate_limits:
             raise KeyError(f"Rate limit type {limit_type} not found")
 
         rate_limit = self.config.rate_limits[limit_type]
+
+        if encountered_rate_limit:
+            rate_limit.counter = rate_limit.requests
+
         rate_limit.counter += 1
 
         if rate_limit.counter > rate_limit.requests:
+            print(
+                f" [pausing for {rate_limit.seconds} seconds after {rate_limit.requests} requests]",
+                end="",
+                flush=True,
+            )
             rate_limit.counter = 0
             time.sleep(rate_limit.seconds)
 

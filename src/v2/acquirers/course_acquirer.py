@@ -1,4 +1,5 @@
 from functools import cached_property
+import json
 from typing import Any
 from utils.config import Config
 from utils.fetcher.fetcher import Fetcher
@@ -11,28 +12,32 @@ from .historic_grades_acquirer import HistoricGrades
 class CourseAcquirer:
     ENTRY_REQUIREMENT_TYPES = {"A level": "a_level", "UCAS Tariff": "ucas_tariff"}
 
-    def __init__(
-        self, id_or_url: str, config: Config = Config(), fetcher: Fetcher = Fetcher()
-    ) -> None:
+    TEMPLATE_ENTRY_REQUIREMENTS = {
+        "a_level": {"offer": False, "requirements": ""},
+        "ucas_tariff": {"offer": False, "requirements": ""},
+    }
+
+    def __init__(self, config: Config = Config(), fetcher: Fetcher = Fetcher()) -> None:
         self.config = config
         self.fetcher = fetcher
         self.output = Output()
-        self.ucas_id = CourseIdParser.parse(id_or_url)
         self.historic_grades_api = HistoricGrades(self.fetcher)
 
-    def process(self) -> None:
+    def process(self, id_or_url: str) -> None:
+        self.ucas_id = CourseIdParser.parse(id_or_url)
+
         # Fetch course details
         self.__fetch_basic_details()
         self.__fetch_historic_data()
         self.__fetch_confirmation_rates()
 
     def __fetch_basic_details(self) -> None:
+        print(f"Fetching course details for {self.ucas_id}", end="")
         self.details = self.fetcher.fetch_json(self.__url)
         self.course = Course()
 
         # Basic details
         self.course.course_code = self.details["course"]["applicationCode"]
-        self.course.duration = self.course_duration
         self.course.institution_code = self.provider["institutionCode"]
         self.course.location = self.options["location"]["name"]
         self.course.provider_sort = self.provider["providerSort"]
@@ -42,6 +47,11 @@ class CourseAcquirer:
         self.course.study_mode = self.options["studyMode"]["caption"]
         self.course.title = self.details["course"]["courseTitle"]
         self.course.ucas_id = self.ucas_id
+        self.course.duration = self.course_duration
+
+        print(
+            f" - {self.course.provider}, {self.course.title} ({self.course.qualification})"
+        )
 
         # Entry requirements
         self.course.a_level_text = self.entry_requirements["a_level"]["requirements"]
@@ -80,9 +90,13 @@ class CourseAcquirer:
                 self.ucas_id, predicted_grade
             )
 
-            confirmation_rates[predicted_grade] = results["results"][0][
-                "confirmationRate"
-            ]
+            confirmation_rate = (
+                results["results"][0]["confirmationRate"]
+                if len(results["results"]) > 0
+                else ""
+            )
+
+            confirmation_rates[predicted_grade] = confirmation_rate
 
         confirmation_rates["ucas_id"] = self.ucas_id
         self.output.write(
@@ -98,7 +112,7 @@ class CourseAcquirer:
     @cached_property
     def entry_requirements(self) -> dict[str, Any]:
         qualifications = self.options["academicEntryRequirements"]["qualifications"]
-        entry_requirements = {}
+        entry_requirements = self.TEMPLATE_ENTRY_REQUIREMENTS.copy()
 
         for qualification in qualifications:
             valid_type = self.ENTRY_REQUIREMENT_TYPES.get(
@@ -124,7 +138,7 @@ class CourseAcquirer:
     @cached_property
     def options(self) -> dict[str, Any]:
         options_data = self.details["course"]["options"]
-        options = options_data[0] if len(options_data) == 1 else options_data
+        options = options_data[0] if len(options_data) > 0 else options_data
 
         if isinstance(options, dict):
             return options
@@ -133,8 +147,23 @@ class CourseAcquirer:
 
     @cached_property
     def course_duration(self) -> str:
-        duration = self.options["duration"]
-        return f"{int(duration['quantity'])} {duration['durationType']['caption']}"
+        try:
+            duration = self.options["duration"]
+            return (
+                f"{int(duration['quantity'])} {duration['durationType']['caption']}"
+                if duration
+                else "Unknown"
+            )
+        except KeyError as e:
+            print(self.options)
+            raise e
+        except TypeError as e:
+            print(json.dumps(self.options, indent=4))
+            print(
+                f"{self.ucas_id} - {self.course.provider}, {self.course.title} ({self.course.qualification})"
+            )
+            print(duration)
+            raise e
 
     @cached_property
     def __file_location(self) -> list[str]:
@@ -160,5 +189,5 @@ class CourseAcquirer:
 if __name__ == "__main__":
     url = "https://digital.ucas.com/coursedisplay/courses/508f8040-1309-e5cb-ff57-c4ff9c902ed3?academicYearId=2025"
 
-    course = CourseAcquirer(url)
-    course.process()
+    course = CourseAcquirer()
+    course.process(url)

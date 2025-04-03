@@ -1,6 +1,6 @@
 from v2.acquirers.course_acquirer import CourseAcquirer
 
-url = "https://digital.ucas.com/coursedisplay/courses/508f8040-1309-e5cb-ff57-c4ff9c902ed3?academicYearId=2025"
+ucas_id = "b68ba80a-b8c5-5f4c-09c8-72b7d5ef519c"
 
-course = CourseAcquirer(url)
-course.process()
+course = CourseAcquirer()
+course.process(ucas_id)

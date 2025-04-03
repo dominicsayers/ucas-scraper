@@ -110,7 +110,7 @@ class Output:
         try:
             with file_path.open("r", newline="") as file:
                 print(
-                    f"Loading local copy of {document}.json "
+                    f"   🟰Loading local copy of {document}.json "
                     f"for {location[1]} at {location[0]}",
                     end="",
                 )
@@ -122,6 +122,23 @@ class Output:
         except json.JSONDecodeError as e:
             print(f"\nError decoding JSON from {file_path}: {e}")
             return None
+
+    def read_list(self, location: list[str], document: str) -> list[str]:
+        """Read a list of items from file with improved error handling"""
+        folder_path = self._create_folder_path(location)
+        file_path = folder_path / document
+
+        try:
+            with file_path.open("r", newline="") as file:
+                print(
+                    f"Loading items from {document}",
+                    end="",
+                )
+                data: list[str] = file.read().splitlines()
+                print(" ✅")
+                return data
+        except FileNotFoundError:
+            return []
 
     def _create_folder_path(self, location: list[str]) -> Path:
         """Create and return sanitized folder path"""

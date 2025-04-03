@@ -53,14 +53,9 @@ class HistoricGrades:
             Dictionary containing historic grade data
         """
         url = ApiConfig.get_historic_grades_url(ucas_id)
-        print(f"Fetching historic grades for course id {ucas_id}", end="")
+        print(f"   🔹Fetching historic grades for course id {ucas_id}", end="")
 
-        try:
-            return self.fetcher.fetch_json_with_rate_limit(url)
-        except Exception as e:
-            raise e
-            print(f"\nError fetching historic grades: {e}")
-            return {}
+        return self.fetcher.fetch_json_with_rate_limit(url)
 
     def confirmation_rate(
         self,
@@ -79,7 +74,7 @@ class HistoricGrades:
             Dictionary containing confirmation rate data
         """
         print(
-            f"Fetching confirmation rate at {predicted_grades} for course id {ucas_id}",
+            f"   🔸Fetching confirmation rate at {predicted_grades} for course id {ucas_id}",
             end="",
         )
 
@@ -87,23 +82,18 @@ class HistoricGrades:
             ucas_id, predicted_grades, qualification_type
         )
 
-        try:
-            response = self.fetcher.post_with_rate_limit(
-                ApiConfig.LOGGED_IN_ENDPOINT, payload, ApiHeaders.CONFIRMATION_RATE
-            )
-        except Exception as e:
-            raise e
-            print(f"\nError fetching confirmation rate: {e}")
-            return {}
+        response = self.fetcher.post_with_rate_limit(
+            ApiConfig.LOGGED_IN_ENDPOINT, payload, ApiHeaders.CONFIRMATION_RATE
+        )
 
         if not response or isinstance(response, int):
-            return {}
+            return {"results": []}
 
         try:
             return dict(json.loads(response))
         except json.JSONDecodeError as e:
             print(f"\nError decoding JSON response: {e}")
-            return {}
+            return {"results": []}
 
     def _build_confirmation_rate_payload(
         self, ucas_id: str, predicted_grades: str, qualification_type: QualificationType

@@ -23,5 +23,5 @@ class FetcherConfig:
     log_date_format: str = "%Y-%m-%d %H:%M:%S"
 
     rate_limits: Dict[str, RateLimit] = field(
-        default_factory=lambda: {"universal": RateLimit(requests=20, seconds=60)}
+        default_factory=lambda: {"universal": RateLimit(requests=10, seconds=60)}
     )
