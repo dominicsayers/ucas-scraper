@@ -70,7 +70,7 @@ class Output:
         self.csv_writer = CsvWriter()
 
     def write_csv(
-        self, name: str, content: list[dict[str, str]], column_headers: list[str]
+        self, name: str, content: list[dict[str, Any]], column_headers: list[str]
     ) -> None:
         """Write data to CSV file with error handling"""
         output_path = self.base_path / f"{name}.csv"
@@ -90,7 +90,7 @@ class Output:
         content: Union[str, dict[str, str]],
     ) -> None:
         """Write content to either HTML or JSON file"""
-        folder_path = self._create_folder_path(location)
+        folder_path = self.__create_folder_path(location)
 
         try:
             if isinstance(content, str):
@@ -102,15 +102,18 @@ class Output:
         except IOError as e:
             print(f"Error writing file {output_path}: {e}")
 
-    def read(self, location: list[str], document: str) -> Optional[dict[str, Any]]:
+    def read(
+        self, location: list[str], document: str, fallback: bool = True
+    ) -> Optional[dict[str, Any]]:
         """Read JSON data from file with improved error handling"""
-        folder_path = self._create_folder_path(location)
+        folder_path = self.__create_folder_path(location)
         file_path = folder_path / f"{document}.json"
 
         try:
             with file_path.open("r", newline="") as file:
                 print(
-                    f"   🟰Loading local copy of {document}.json "
+                    f"   🟰 Loading local copy of {document}.json "
+                    f"from {self.top_level} "
                     f"for {location[1]} at {location[0]}",
                     end="",
                 )
@@ -118,14 +121,20 @@ class Output:
                 print(" ✅")
                 return data
         except FileNotFoundError:
-            return None
+            if not fallback:
+                return None
+
+            # Try to load from v1.1 data
+            o = Output("v1.1")
+            data = o.read(location, document, fallback=False) or {}
+            return data
         except json.JSONDecodeError as e:
             print(f"\nError decoding JSON from {file_path}: {e}")
             return None
 
     def read_list(self, location: list[str], document: str) -> list[str]:
         """Read a list of items from file with improved error handling"""
-        folder_path = self._create_folder_path(location)
+        folder_path = self.__create_folder_path(location)
         file_path = folder_path / document
 
         try:
@@ -140,14 +149,46 @@ class Output:
         except FileNotFoundError:
             return []
 
-    def _create_folder_path(self, location: list[str]) -> Path:
+    def cached_courses(self, location: list[str]) -> list[list[str]]:
+        """Return a list of cached courses for a given location.
+
+        Args:
+            location: List of location components to build the folder path.
+
+        Returns:
+            List of paths to cached course folders.
+        """
+        folder_path = self.__create_folder_path(location)
+        print(f"🔍 Checking for cached courses in {folder_path}")
+
+        course_folders: list[list[str]] = []
+
+        # Using os.walk to simplify nested directory traversal
+        for root, dirs, _ in os.walk(folder_path):
+            depth = root[len(str(folder_path)) :].count(os.sep)
+
+            # We only want folders at depth 4 (provider/course/qualification/academic_year)
+            if depth == 3 and dirs:
+                course_folders.extend(
+                    os.path.join(root, dir_name).split(os.sep)[-5:]
+                    for dir_name in dirs
+                    if self.__is_valid_dir(os.path.join(root, dir_name))
+                )
+
+        return course_folders
+
+    @staticmethod
+    def __is_valid_dir(path: str) -> bool:
+        return os.path.isdir(path)
+
+    def __create_folder_path(self, location: list[str]) -> Path:
         """Create and return sanitized folder path"""
-        sanitized_location = [self._sanitize_path_component(str(x)) for x in location]
+        sanitized_location = [self.__sanitize_path_component(str(x)) for x in location]
         folder_path = self.base_path.joinpath(*sanitized_location)
         folder_path.mkdir(parents=True, exist_ok=True)
         return folder_path
 
     @staticmethod
-    def _sanitize_path_component(component: str) -> str:
+    def __sanitize_path_component(component: str) -> str:
         """Sanitize path component by replacing invalid characters"""
         return component.replace("\\", "").replace("/", " & ")

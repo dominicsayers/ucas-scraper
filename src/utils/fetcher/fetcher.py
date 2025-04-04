@@ -198,8 +198,9 @@ class Fetcher:
                 end="",
                 flush=True,
             )
-            rate_limit.counter = 0
             time.sleep(rate_limit.seconds)
+            for rate_limit in self.config.rate_limits.values():
+                rate_limit.counter = 0
 
     def __execute_request(
         self, verb: HttpVerb, uri: str, **kwargs: Any
