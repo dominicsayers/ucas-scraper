@@ -30,7 +30,11 @@ class CourseBuilder:
 
                 course.add_ucas_course(ucas_course)
 
-            if historic_data and len(historic_data["results"]) > 0:
+            if (
+                historic_data
+                and "results" in historic_data
+                and len(historic_data["results"]) > 0
+            ):
                 course.add_historic_grades(historic_data["results"][0])
 
             courses.append(asdict(course))
