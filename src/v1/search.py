@@ -6,12 +6,12 @@ import time
 from functools import cached_property
 from urllib.parse import quote
 
-from utils.fetcher.fetcher import Fetcher
-from utils.output import Output
+from v1.utils.fetcher.fetcher import Fetcher
+from v1.utils.output import Output
 from .parser import Parser, ParserContent
 from v1.course_v1 import Course
 from v1.historic_grades_v1 import HistoricGrades
-from utils.course_id_parser import CourseIdParser
+from v1.utils.course_id_parser import CourseIdParser
 
 
 @dataclass

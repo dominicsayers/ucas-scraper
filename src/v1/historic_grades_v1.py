@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Any, Optional
 from enum import Enum
 import json
-from utils.fetcher.fetcher import Fetcher
-from utils.course_id_parser import CourseIdParser
+from v1.utils.fetcher.fetcher import Fetcher
+from v1.utils.course_id_parser import CourseIdParser
 
 
 class QualificationType(Enum):

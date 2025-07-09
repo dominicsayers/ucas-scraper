@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from bs4.element import Tag
 from dataclasses import asdict, dataclass
-from utils.fetcher.fetcher import Fetcher
+from v1.utils.fetcher.fetcher import Fetcher
 from .parser import Parser, ParserContent
 
 

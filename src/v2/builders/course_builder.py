@@ -1,6 +1,6 @@
 from dataclasses import asdict
-from utils.config import Config
-from utils.output import Output
+from v2.utils.config import Config
+from v2.utils.output import Output
 from v2.models.course import Course
 from v2.models.ucas_course import UCASCourse
 
