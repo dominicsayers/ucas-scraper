@@ -1,41 +1,18 @@
-from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Union
-from datetime import datetime
+from typing import Optional, List, Union
 import os
 from urllib.parse import quote
 
+from v3.utils.config import Config
 from v3.utils.fetcher.fetcher import Fetcher
 from v3.utils.file_handler import FileHandler
 from v3.utils.html_parser import HTMLParser
 
 
-@dataclass
-class SearchConfig:
-    url: str = field(
-        default_factory=lambda: os.environ.get("UCAS_URL", "https://digital.ucas.com")
-    )
-    path: str = "coursedisplay/results/courses"
-    study_year: int = field(
-        default_factory=lambda: int(os.environ.get("STUDY_YEAR", datetime.now().year))
-    )
-    course: str = field(
-        default_factory=lambda: os.environ.get("COURSE", "Computer Science")
-    )
-    destination: str = field(
-        default_factory=lambda: os.environ.get("DESTINATION", "Undergraduate")
-    )
-
-
-@dataclass
-class CourseData:
-    basic_info: Dict[str, str]
-
-
 class SearchService:
     """Handles course search and data collection from UCAS"""
 
-    def __init__(self, config: Optional[SearchConfig] = None) -> None:
-        self.config = config or SearchConfig()
+    def __init__(self, config: Config = Config()) -> None:
+        self.config = config
         self.fetcher = Fetcher()
         self.file_handler = FileHandler("data")
 

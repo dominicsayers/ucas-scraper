@@ -126,8 +126,7 @@ class FileHandler:
             with file_path.open("r", newline="") as file:
                 print(
                     f"   🟰 Loading local copy of {document}.json "
-                    f"from {self.top_level} "
-                    f"for {location[1]} at {location[0]}",
+                    f"from {self.top_level} ",
                     end="",
                 )
                 data: dict[str, Any] = json.load(file)
