@@ -1,32 +1,34 @@
 from dataclasses import asdict
-from v2.utils.config import Config
-from v2.utils.output import Output
-from v2.models.course import Course
-from v2.models.ucas_course import UCASCourse
+from v3.utils.config import Config
+from v3.utils.file_handler import FileHandler
+from v3.models.course import Course
+from v3.models.ucas_course import UCASCourse
+from .course_filter import CourseFilter
 
 
 class CourseBuilder:
     def __init__(self, config: Config = Config()) -> None:
         self.config = config
-        self.output = Output()
+        self.file_handler = FileHandler("data")
+        self.course_filter = CourseFilter()
 
     def list_courses(self) -> None:
-        for course_location in self.output.cached_courses(["providers"]):
+        for course_location in self.file_handler.cached_courses(["providers"]):
             print(course_location)
 
     def from_file_cache(self) -> None:
         courses = []
         confirmation_rates = []
 
-        for course_location in self.output.cached_courses(["providers"]):
+        for course_location in self.file_handler.cached_courses(["providers"]):
             # Course details
-            details = self.output.read(course_location, "course")
-            historic_data = self.output.read(course_location, "historic")
+            details = self.file_handler.read(course_location, "course")
+            historic_data = self.file_handler.read(course_location, "historic")
+            course = Course()
 
             if details:
                 ucas_id = details["course"]["id"]
                 ucas_course = UCASCourse(ucas_id, details)
-                course = Course()
 
                 course.add_ucas_course(ucas_course)
 
@@ -37,11 +39,14 @@ class CourseBuilder:
             ):
                 course.add_historic_grades(historic_data["results"][0])
 
+            if self.course_filter.exclude(course):
+                continue
+
             courses.append(asdict(course))
 
             # Confirmation rates
             confirmation_rates.append(
-                self.output.read(course_location, "confirmation_rates") or {}
+                self.file_handler.read(course_location, "confirmation_rates") or {}
             )
 
         # Write output data to files
@@ -52,9 +57,9 @@ class CourseBuilder:
         )
         confirmation_rates_headers.sort(reverse=True)
 
-        self.output.write_csv("courses", courses, list(courses[0].keys()))
+        self.file_handler.write_csv("courses", courses, list(courses[0].keys()))
 
         if len(confirmation_rates) > 0:
-            self.output.write_csv(
+            self.file_handler.write_csv(
                 "confirmation-rates", confirmation_rates, confirmation_rates_headers
             )

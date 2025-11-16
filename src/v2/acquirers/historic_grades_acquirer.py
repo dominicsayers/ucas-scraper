@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 from enum import Enum
 import json
-from utils.fetcher.fetcher import Fetcher
+from v2.utils.fetcher.fetcher import Fetcher
 
 
 class QualificationType(Enum):

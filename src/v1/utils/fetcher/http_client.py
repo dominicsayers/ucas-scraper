@@ -1,6 +1,6 @@
 from typing import Any
 import httpx
-from utils.fetcher.fetcher_config import FetcherConfig
+from v1.utils.fetcher.fetcher_config import FetcherConfig
 
 
 class HttpClient:

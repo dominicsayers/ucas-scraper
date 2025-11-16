@@ -1,18 +1,18 @@
 from functools import cached_property
-from v2.utils.config import Config
-from v2.utils.fetcher.fetcher import Fetcher
-from v2.utils.output import Output
-from v2.utils.course_id_parser import CourseIdParser
-from v2.models.course import Course
-from v2.models.ucas_course import UCASCourse
-from .historic_grades_acquirer import HistoricGrades
+from v3.utils.config import Config
+from v3.utils.fetcher.fetcher import Fetcher
+from v3.utils.file_handler import FileHandler
+from v3.utils.course_id_parser import CourseIdParser
+from v3.models.course import Course
+from v3.models.ucas_course import UCASCourse
+from .historic_grades import HistoricGrades
 
 
 class CourseAcquirer:
     def __init__(self, config: Config = Config(), fetcher: Fetcher = Fetcher()) -> None:
         self.config = config
         self.fetcher = fetcher
-        self.output = Output()
+        self.output = FileHandler("data")
         self.historic_grades_api = HistoricGrades(self.fetcher)
 
     def process(self, id_or_url: str) -> None:
@@ -87,7 +87,7 @@ class CourseAcquirer:
             self.course.provider_sort,
             self.course.title,
             self.course.qualification,
-            str(self.config.academic_year),
+            str(self.config.study_year),
         ]
 
     @cached_property
@@ -95,7 +95,7 @@ class CourseAcquirer:
         return (
             "https://services.ucas.com/search/api/v3/courses"
             + f"?courseDetailsRequest.coursePrimaryId={self.ucas_id}"
-            + f"&courseDetailsRequest.academicYearId={self.config.academic_year}"
+            + f"&courseDetailsRequest.academicYearId={self.config.study_year}"
             + f"&courseDetailsRequest.courseType={self.config.destination}"
         )
 

@@ -17,4 +17,5 @@ jobs:
       - name: pre-commit checks
         run: |
           pip install uv
+          uv run pre-commit autoupdate
           uv run pre-commit run --all-files
