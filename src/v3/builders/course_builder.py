@@ -18,6 +18,7 @@ class CourseBuilder:
 
     def from_file_cache(self) -> None:
         courses = []
+        course_titles = set()
         confirmation_rates = []
 
         for course_location in self.file_handler.cached_courses(["providers"]):
@@ -43,6 +44,7 @@ class CourseBuilder:
                 continue
 
             courses.append(asdict(course))
+            course_titles.add(course.title)
 
             # Confirmation rates
             confirmation_rates.append(
@@ -50,14 +52,21 @@ class CourseBuilder:
             )
 
         # Write output data to files
-        confirmation_rates_headers = (
-            list(confirmation_rates[0].keys())
-            if len(confirmation_rates) > 0 and isinstance(confirmation_rates[0], dict)
-            else []
-        )
+        confirmation_rates_headers: list[str] = []
+
+        for confirmation_rate in confirmation_rates:
+            confirmation_rates_headers = list(
+                set(confirmation_rates_headers + list(confirmation_rate.keys()))
+            )
+
         confirmation_rates_headers.sort(reverse=True)
 
         self.file_handler.write_csv("courses", courses, list(courses[0].keys()))
+        self.file_handler.write_csv(
+            "course-titles",
+            [{"title": title} for title in sorted(course_titles)],
+            ["title"],
+        )
 
         if len(confirmation_rates) > 0:
             self.file_handler.write_csv(
