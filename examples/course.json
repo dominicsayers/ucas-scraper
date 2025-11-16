@@ -1,0 +1,569 @@
+{
+  "course": {
+    "id": "508f8040-1309-e5cb-ff57-c4ff9c902ed3",
+    "academicYearId": "2025",
+    "compositeId": "508f8040-1309-e5cb-ff57-c4ff9c902ed3-2025",
+    "routingData": {
+      "destination": {
+        "id": "ug",
+        "mappedCaption": null,
+        "caption": "Undergraduate"
+      },
+      "scheme": {
+        "id": "ucas",
+        "mappedCaption": null,
+        "caption": "UCAS Undergraduate"
+      }
+    },
+    "courseTitle": "Engineering",
+    "courseTitleWithoutApostrophe": "Engineering",
+    "shortTitle": null,
+    "abbreviatedTitle": null,
+    "englishTitle": "",
+    "courseTitleSort": "Engineering",
+    "taughtInWelsh": false,
+    "applicationCode": "H101",
+    "summary": "\n- Have the flexibility and freedom to explore Engineering\u202fbefore deciding on your chosen specialist field\n\n\n- Gain technical expertise alongside team-working, management and entrepreneurial skills\n\n\n- Focus on project-based learning: work on real-world projects with industry partners\n\n\n- Hands-on course with an emphasis on practical project work\n\n\nTo learn more about modules, assessment methods, facilities and our staff research expertise please visit our course page.",
+    "keywords": null,
+    "provider": {
+      "id": "91fd2fa0-e5ec-efe7-eb46-db8f10a74059",
+      "name": "University of Exeter",
+      "institutionCode": "E84",
+      "cukasInstitutionCode": null,
+      "providerCode": null,
+      "providerSort": "Exeter, University of",
+      "providerShortName": "University of Exeter",
+      "providerAbbreviatedName": "EXETR",
+      "ukprn": 10007792,
+      "liveProvider": true,
+      "address": {
+        "line1": "Northcote House",
+        "line2": "The Queen's Drive",
+        "line3": "",
+        "line4": "Exeter",
+        "postcode": "EX4 4QJ",
+        "country": {
+          "id": "101",
+          "mappedCaption": "England",
+          "caption": "England"
+        },
+        "region": {
+          "id": "30",
+          "mappedCaption": "South West England",
+          "caption": "South West England"
+        },
+        "latitude": 50.7351556405,
+        "longitude": -3.5350475938
+      },
+      "websiteUrl": "https://www.exeter.ac.uk",
+      "logoUrl": "https://d1l6hqpjksdq9d.cloudfront.net/Prod/91fd2fa0-e5ec-efe7-eb46-db8f10a74059",
+      "providerUrls": [],
+      "aliases": [],
+      "requireAsciiDocuments": false,
+      "imageLocation": "gold gold gold-01.png",
+      "aliasName": "University of Exeter",
+      "aliasNameWithoutApostrophe": "University of Exeter"
+    },
+    "internalReference": null,
+    "department": {
+      "id": "95ee31ae-4d1b-fb4b-5518-e0fcdc064a83",
+      "name": "Engineering"
+    },
+    "studyType": null,
+    "subjects": [
+      { "id": "628", "mappedCaption": null, "caption": "Engineering" }
+    ],
+    "contacts": [
+      {
+        "id": "04c0f62d-6864-4146-a466-ffb6324a8189",
+        "title": "Undergraduate Admissions",
+        "email": "ug-ad@exeter.ac.uk",
+        "phone": "03005556060",
+        "fax": "",
+        "isDefault": false,
+        "isClearing": false,
+        "clearingUrl": null,
+        "availability": null,
+        "isAdmissions": true,
+        "socialMediaPresences": [
+          {
+            "id": "fb",
+            "caption": "Facebook",
+            "url": "https://www.facebook.com/exeteruni"
+          },
+          {
+            "id": "ig",
+            "caption": "Instagram",
+            "url": "https://instagram.com/uniofexeter/"
+          },
+          {
+            "id": "li",
+            "caption": "LinkedIn",
+            "url": "https://www.linkedin.com/school/university-of-exeter/"
+          },
+          {
+            "id": "tw",
+            "caption": "Twitter",
+            "url": "https://twitter.com/UniofExeter"
+          },
+          {
+            "id": "yt",
+            "caption": "Youtube",
+            "url": "https://www.youtube.com/@universityofexeter"
+          }
+        ],
+        "enquiryLink": {
+          "url": "http://www.exeter.ac.uk/enquiry?utm_source=ucas&utm_medium=affiliate&utm_campaign=uoe-courselisting-button-requestinfo",
+          "caption": "Enquiry Form"
+        },
+        "hasCourses": false,
+        "coursesCount": 0
+      },
+      {
+        "id": "61c4ec20-352a-4a52-915f-4a1199822143",
+        "title": "Admissions Office",
+        "email": null,
+        "phone": "0300 555 6060",
+        "fax": null,
+        "isDefault": false,
+        "isClearing": true,
+        "clearingUrl": null,
+        "availability": null,
+        "isAdmissions": false,
+        "socialMediaPresences": [],
+        "enquiryLink": { "url": null, "caption": null },
+        "hasCourses": false,
+        "coursesCount": 0
+      }
+    ],
+    "options": [
+      {
+        "id": "5b229e3f-5408-4c60-b5c0-ea5421ed258d",
+        "cycleId": null,
+        "applyCycle": "2025",
+        "studyMode": {
+          "id": "3",
+          "mappedCaption": "Full-time",
+          "caption": "Full-time",
+          "excludedSchemesForApplication": []
+        },
+        "duration": {
+          "quantity": 3.0,
+          "durationType": {
+            "id": "4",
+            "mappedCaption": null,
+            "caption": "Years"
+          }
+        },
+        "durationRange": { "min": null, "max": null },
+        "location": {
+          "id": "054e97bd-41c0-4411-bac9-f4fdb3c649da",
+          "name": "University of Exeter - Exeter campuses",
+          "address": {
+            "line1": "Northcote House",
+            "line2": "The Queen's Drive",
+            "line3": "Exeter",
+            "line4": "Devon",
+            "postcode": "EX4 4QJ",
+            "country": {
+              "id": "000",
+              "mappedCaption": "England",
+              "caption": "United Kingdom"
+            },
+            "region": {
+              "id": "30",
+              "mappedCaption": "South West England",
+              "caption": "South West England"
+            },
+            "latitude": 50.7345,
+            "longitude": -3.5361
+          },
+          "locationCode": "-",
+          "isDefault": false,
+          "geoLocation": { "latitude": 50.7345, "longitude": -3.5361 },
+          "geoLocationString": "50.7345,-3.5361",
+          "locationCategory": {
+            "id": "10001",
+            "mappedCaption": null,
+            "caption": "Campus"
+          },
+          "tefCodeType": null,
+          "ukprn": null,
+          "url": null,
+          "googleMapsUrl": "https://maps.googleapis.com/maps/api/staticmap?zoom=10&size=2048x600&scale=2&markers=size:tiny%7Ccolor:red%7C50.7345,-3.5361",
+          "googleMapsParams": "50.7345,-3.5361"
+        },
+        "startDate": { "date": "22/09/2025", "nonSpecific": false },
+        "internalReference": null,
+        "courseFees": [
+          {
+            "feeState": { "id": "3", "mappedCaption": null, "caption": "Set" },
+            "currency": {
+              "id": "GBP",
+              "mappedCaption": null,
+              "caption": "\u00a3"
+            },
+            "feeLocale": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "England"
+            },
+            "feeBasis": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "Year 1"
+            },
+            "amount": 9535.0
+          },
+          {
+            "feeState": { "id": "3", "mappedCaption": null, "caption": "Set" },
+            "currency": {
+              "id": "GBP",
+              "mappedCaption": null,
+              "caption": "\u00a3"
+            },
+            "feeLocale": {
+              "id": "6",
+              "mappedCaption": null,
+              "caption": "Northern Ireland"
+            },
+            "feeBasis": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "Year 1"
+            },
+            "amount": 9535.0
+          },
+          {
+            "feeState": { "id": "3", "mappedCaption": null, "caption": "Set" },
+            "currency": {
+              "id": "GBP",
+              "mappedCaption": null,
+              "caption": "\u00a3"
+            },
+            "feeLocale": {
+              "id": "7",
+              "mappedCaption": null,
+              "caption": "Scotland"
+            },
+            "feeBasis": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "Year 1"
+            },
+            "amount": 9535.0
+          },
+          {
+            "feeState": { "id": "3", "mappedCaption": null, "caption": "Set" },
+            "currency": {
+              "id": "GBP",
+              "mappedCaption": null,
+              "caption": "\u00a3"
+            },
+            "feeLocale": {
+              "id": "8",
+              "mappedCaption": null,
+              "caption": "Wales"
+            },
+            "feeBasis": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "Year 1"
+            },
+            "amount": 9535.0
+          },
+          {
+            "feeState": { "id": "3", "mappedCaption": null, "caption": "Set" },
+            "currency": {
+              "id": "GBP",
+              "mappedCaption": null,
+              "caption": "\u00a3"
+            },
+            "feeLocale": {
+              "id": "9",
+              "mappedCaption": null,
+              "caption": "Channel Islands"
+            },
+            "feeBasis": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "Year 1"
+            },
+            "amount": 9535.0
+          },
+          {
+            "feeState": { "id": "3", "mappedCaption": null, "caption": "Set" },
+            "currency": {
+              "id": "GBP",
+              "mappedCaption": null,
+              "caption": "\u00a3"
+            },
+            "feeLocale": { "id": "3", "mappedCaption": null, "caption": "EU" },
+            "feeBasis": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "Year 1"
+            },
+            "amount": 30900.0
+          },
+          {
+            "feeState": { "id": "3", "mappedCaption": null, "caption": "Set" },
+            "currency": {
+              "id": "GBP",
+              "mappedCaption": null,
+              "caption": "\u00a3"
+            },
+            "feeLocale": {
+              "id": "4",
+              "mappedCaption": null,
+              "caption": "International"
+            },
+            "feeBasis": {
+              "id": "5",
+              "mappedCaption": null,
+              "caption": "Year 1"
+            },
+            "amount": 30900.0
+          }
+        ],
+        "additionalFeeInformation": "For full details regarding tuition fee and other costings, see: http://www.exeter.ac.uk/undergraduate/money/fees/",
+        "useDefaultFees": false,
+        "academicEntryRequirements": {
+          "qualifications": [
+            {
+              "qualificationName": "A level",
+              "priority": 2,
+              "summary": {
+                "offer": "AAB - ABB",
+                "requirements": "Excluding General Studies. \nMathematics and another Science subject at Grade B required."
+              },
+              "notAccepted": false
+            },
+            {
+              "qualificationName": "UCAS Tariff",
+              "priority": 1,
+              "summary": { "offer": null, "requirements": null },
+              "notAccepted": true
+            },
+            {
+              "qualificationName": "Scottish Higher",
+              "priority": 6,
+              "summary": {
+                "offer": "AAABB - AABBB",
+                "requirements": "Mathematics and another Science subject at Grade B required."
+              },
+              "notAccepted": false
+            },
+            {
+              "qualificationName": "Access to HE Diploma",
+              "priority": 5,
+              "summary": {
+                "offer": "D: 30 credits\r\nM: 15 credits",
+                "requirements": "Pass the Access to HE Diploma with 30 L3 credits at Distinction grade and 15 L3 credits at Merit grade - 24 L3 credits at Distinction grade and 21 L3 credits at Merit Grade. This must include 12 L3 credits in Maths and 12 L3 credits at Merit Grade or above in another Science subject. Please also see our GCSE requirements."
+              },
+              "notAccepted": false
+            },
+            {
+              "qualificationName": "Scottish Advanced Higher",
+              "priority": 1130,
+              "summary": {
+                "offer": "ABB - BBB",
+                "requirements": "Mathematics and another Science subject at Grade B required."
+              },
+              "notAccepted": false
+            },
+            {
+              "qualificationName": "International Baccalaureate Diploma Programme",
+              "priority": 1141,
+              "summary": {
+                "offer": "32 - 34 points",
+                "requirements": "Applicants will be considered with IB 34-32 OR 665 or 655 in three Higher Level subjects. All applicants will be required to have Grade 5 in HL Maths (Analysis and Approaches) and another Science subject. Applicants with SL Grade 7 in Mathematics (Analysis and Approaches) and HL Grade 5 in Physics will also be considered."
+              },
+              "notAccepted": false
+            },
+            {
+              "qualificationName": "Pearson BTEC Level 3 National Extended Diploma (first teaching from September 2016)",
+              "priority": 4,
+              "summary": {
+                "offer": "DDD - DDM",
+                "requirements": "Applicants studying one of the following BTEC Extended Diplomas will be considered without a GCE A-Level science subject, GCE A-Level Maths is still required: Applied Science, Aeronautical Engineering, Building Services Engineering Construction and the Built Environment, Civil Engineering, Operations and Maintenance Engineering, Computer Engineering, Electrical/Electronic Engineering, Engineering, Manufacturing Engineering, Mechanical Engineering, Environmental Sustainability.\n \nApplicants studying one of the following subjects in the BTEC Diploma or BTEC Extended Certificate will be considered without a GCE A-Level science subject, GCE A-Level Maths is still required: Applied Science, Engineering."
+              },
+              "notAccepted": false
+            }
+          ],
+          "ucasTariffPointsMin": 0,
+          "ucasTariffPointsMax": 0,
+          "ucasTariffPointsDisplayMin": 0,
+          "ucasTariffPointsDisplayMax": 0,
+          "furtherInformation": null,
+          "providerEntryRequirementsUrl": null,
+          "noRequirements": false,
+          "contextualInformation": "This tool provides a broad indication on entry information. When considering applicants at Exeter there are additional specific individual considerations taken into account.  This includes eligibility for contextual offers, extenuating circumstances, whether applicants fall within UK or international targets, or whether they\u2019ve applied for a capped programme or group. Please also make sure to check for specific subject requirements on our website www.exeter.ac.uk/study/undergraduate",
+          "contextualInformationUrl": "https://www.exeter.ac.uk/study/undergraduate/entryrequirements/contextual/"
+        },
+        "minimumAcademicEntryRequirements": null,
+        "additionalEntryRequirements": [],
+        "englishLanguageEntryRequirements": [],
+        "englishLanguageEntryRequirementInformation": {
+          "furtherInformation": "GCSE English Language with a minimum pass of Grade C or 4",
+          "urlField": "http://www.exeter.ac.uk/undergraduate/applications/entry/#english-language",
+          "urlDescription": "For further details on our English Language requirements please visit our website"
+        },
+        "admissionTests": [],
+        "subjectOptions": [],
+        "status": {
+          "published": true,
+          "availableForApplication": true,
+          "applicationStatusSummary": "Available to Apply",
+          "notAcceptingApplicationsMessage": null,
+          "acceptingApplicationsMessage": null
+        },
+        "features": { "accelerated": false },
+        "entryPoints": [
+          {
+            "entryPointId": 1,
+            "caption": "Year 1",
+            "minOptionDurationYears": 0,
+            "isDefault": true
+          }
+        ],
+        "outcomeQualification": {
+          "id": "47084",
+          "mappedCaption": "Bachelor degrees (with or without Honours)",
+          "caption": "Bachelor of Engineering (with Honours) - BEng (Hon)"
+        },
+        "qualificationLevel": {
+          "id": "RQF_6",
+          "mappedCaption": null,
+          "caption": "RQF Level 6"
+        },
+        "courseType": null,
+        "entryRequirements": null,
+        "assessmentMethods": "Please visit our course page for current assessment methods.",
+        "modules": "For a full list of modules please visit our course page.",
+        "providerCourseUrl": "https://www.exeter.ac.uk/study/undergraduate/courses/engineering/engineering/?utm_source=ucas&utm_medium=affiliate&utm_campaign=uoe-courselisting-ug-eng",
+        "providerApplyUrl": null,
+        "professionalBodies": [],
+        "subjectToValidation": false,
+        "deadline": {
+          "id": "jan15",
+          "mappedCaption": null,
+          "caption": "29 January"
+        },
+        "deferredEntryDisallowed": false,
+        "amsApplicationConfigurationOptions": {
+          "useEnhancedCriminalConvictionCheck": false,
+          "useAscii": false,
+          "customQuestions": [],
+          "vacancyStatuses": [
+            {
+              "domicile": "eu",
+              "status": null,
+              "hasVacancies": true,
+              "flattenedVacancy": "eu"
+            },
+            {
+              "domicile": "wales",
+              "status": null,
+              "hasVacancies": true,
+              "flattenedVacancy": "wales"
+            },
+            {
+              "domicile": "eng",
+              "status": null,
+              "hasVacancies": true,
+              "flattenedVacancy": "eng"
+            },
+            {
+              "domicile": "int",
+              "status": null,
+              "hasVacancies": true,
+              "flattenedVacancy": "int"
+            },
+            {
+              "domicile": "scot",
+              "status": null,
+              "hasVacancies": true,
+              "flattenedVacancy": "scot"
+            },
+            {
+              "domicile": "ni",
+              "status": null,
+              "hasVacancies": true,
+              "flattenedVacancy": "ni"
+            },
+            {
+              "domicile": "roi",
+              "status": null,
+              "hasVacancies": true,
+              "flattenedVacancy": "roi"
+            }
+          ],
+          "hasRestrictedEligibility": false,
+          "restrictedEligibilityInfo": null,
+          "restrictedEligibilityUrl": null,
+          "hasNoVacancies": "False",
+          "hasRestrictedVacancies": "False",
+          "notAcceptingInternationalApplications": "False"
+        },
+        "subsequentYearsEntryRequirements": null
+      }
+    ],
+    "ucasApplyData": null,
+    "awardingBodies": [
+      { "id": "379", "mappedCaption": null, "caption": "University of Exeter" }
+    ],
+    "sponsorshipInformation": "We understand the financial pressures that undergraduate students can face when arriving at university for the first time and that is why we offer bursaries to complement government loans for low household income families, scholarships for exceptional students, sportspeople and those meeting other criteria as well as expert funding advice and guidance.  For more information, please visit our course page.",
+    "copyFormRequired": false,
+    "facultyCode": null,
+    "qualifiedTeacherStatus": null,
+    "balanceIndicator": {
+      "id": "S",
+      "mappedCaption": null,
+      "caption": "Single"
+    },
+    "jacs3Codes": [
+      {
+        "jacs3Code": {
+          "id": "H100",
+          "mappedCaption": null,
+          "caption": "General engineering"
+        },
+        "isMajor": false
+      }
+    ],
+    "hecosCodes": [
+      {
+        "hecosCode": {
+          "refDataId": "10111",
+          "code": "100184",
+          "caption": "general or integrated engineering"
+        },
+        "percentageOfCourse": 100
+      }
+    ],
+    "cpdFlag": false,
+    "internationalInformation": "Our International Student Support can help you with what you need to do before you arrive and when you get here as a new international student. They offer ongoing support throughout your studies whether that be setting up a bank account or arranging healthcare. Our Global Chums Buddy Scheme and our Intercultural Cafe provide opportunities to meet staff and connect with students. INTO University of Exeter provide pre-sessional English courses for international students as well as free insessional support.\nFor more information about entry requirements, bursaries and scholarships please visit our course page.",
+    "atasFlag": false,
+    "auditions": [],
+    "additionalAuditionInformation": null,
+    "specialism": {
+      "specialismStudyTypes": [],
+      "primary": [],
+      "secondary": []
+    },
+    "suggest": "Engineering. University of Exeter. Engineering",
+    "publishStart": "2024-04-30T00:00:00Z",
+    "publishEnd": "9999-12-31T23:59:59.9999999",
+    "availableStart": "0001-01-01T00:00:00",
+    "availableEnd": "9999-12-31T23:59:59.9999999",
+    "visibleStart": "2024-04-30T08:00:00",
+    "visibleEnd": "2026-08-01T08:00:00",
+    "currentlyInClearing": false,
+    "ucasTeacherTraining": false,
+    "degreeApprenticeship": false,
+    "higherTechnicalQualifications": false
+  },
+  "academicYearsInformation": { "2025": 1 },
+  "version": 110
+}
