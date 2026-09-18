@@ -176,7 +176,7 @@ class Fetcher:
                 continue
 
         self.__handle_failure(uri)
-        return None
+        return None  # pragma: no cover - __handle_failure always raises
 
     def __apply_rate_limit(
         self, limit_type: str, encountered_rate_limit: bool = False

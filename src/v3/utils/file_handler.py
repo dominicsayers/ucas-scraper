@@ -21,7 +21,7 @@ class FileHandlerWriter[T](ABC):
     """Abstract base class for different file handler writers"""
 
     @abstractmethod
-    def write(self, path: Path, content: T) -> None:
+    def write(self, path: Path, content: T) -> None:  # pragma: no cover - abstract
         pass
 
 
@@ -97,7 +97,7 @@ class FileHandler:
         self,
         location: list[str],
         document: str,
-        content: str | dict[str, str] | list[str],
+        content: str | dict[str, Any] | list[str],
     ) -> None:
         """Write content to either HTML, JSON or text file"""
         folder_path = self.__create_folder_path(location)

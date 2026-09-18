@@ -187,7 +187,7 @@ class ParserContent:
                     return str(element.string or "")
                 case ContentType.LINK:
                     return str(element.attrs.get("href", ""))
-                case _:
+                case _:  # pragma: no cover - unreachable
                     raise TypeError(f"Unknown content type: {content_type}")
         except Exception as e:  # noqa: BLE001 - boundary around bs4's own exception types
             raise ParsingError(f"Error extracting content: {e}")
