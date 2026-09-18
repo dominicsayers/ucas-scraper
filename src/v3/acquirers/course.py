@@ -1,17 +1,21 @@
 from functools import cached_property
-from v3.utils.config import Config
-from v3.utils.fetcher.fetcher import Fetcher
-from v3.utils.file_handler import FileHandler
-from v3.utils.course_id_parser import CourseIdParser
+
 from v3.models.course import Course
 from v3.models.ucas_course import UCASCourse
+from v3.utils.config import Config
+from v3.utils.course_id_parser import CourseIdParser
+from v3.utils.fetcher.fetcher import Fetcher
+from v3.utils.file_handler import FileHandler
+
 from .historic_grades import HistoricGrades
 
 
 class CourseAcquirer:
-    def __init__(self, config: Config = Config(), fetcher: Fetcher = Fetcher()) -> None:
-        self.config = config
-        self.fetcher = fetcher
+    def __init__(
+        self, config: Config | None = None, fetcher: Fetcher | None = None
+    ) -> None:
+        self.config = config or Config()
+        self.fetcher = fetcher or Fetcher()
         self.output = FileHandler("data")
         self.historic_grades_api = HistoricGrades(self.fetcher)
 

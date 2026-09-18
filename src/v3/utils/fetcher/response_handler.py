@@ -1,4 +1,3 @@
-from typing import Optional, Union
 import re
 from dataclasses import dataclass
 
@@ -8,10 +7,10 @@ class ResponseHandler:
     """Handles HTTP response processing"""
 
     status_code: int
-    content: Optional[bytes] = None
-    text: Optional[str] = None
+    content: bytes | None = None
+    text: str | None = None
 
-    def process(self) -> Union[bytes, int]:
+    def process(self) -> bytes | int:
         """Process response based on status code"""
         match self.status_code:
             case 200:

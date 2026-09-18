@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 
 
 @dataclass
@@ -21,7 +21,7 @@ class Config:
     )
     study_year: int = field(
         default_factory=lambda: int(
-            os.environ.get("STUDY_YEAR", datetime.now().year + 1)
+            os.environ.get("STUDY_YEAR", datetime.now(UTC).year + 1)
         )
     )
     path: str = "coursedisplay/results/courses"

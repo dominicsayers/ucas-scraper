@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Optional, Union, TypeVar
+from enum import Enum
+from typing import TypeVar
+
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet, Tag
-from enum import Enum
-
 
 T = TypeVar("T")
 
@@ -26,16 +26,14 @@ class ParserConfig:
 class ParsingError(Exception):
     """Custom exception for parsing errors"""
 
-    pass
-
 
 class ContentSelector:
     """Generic content selector for parsing HTML elements"""
 
-    def __init__(self, element: Optional[Tag]):
+    def __init__(self, element: Tag | None):
         self.element = element
 
-    def select_content(self, selector: str) -> Optional[ResultSet[Tag]]:
+    def select_content(self, selector: str) -> ResultSet[Tag] | None:
         """
         Select content using CSS selector
 
@@ -49,7 +47,7 @@ class ContentSelector:
             if not self.element:
                 return None
             return self.element.select(selector)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - boundary around soupsieve's own exception types
             raise ParsingError(f"Error selecting content: {e}")
 
 
@@ -58,8 +56,8 @@ class HTMLParser:
 
     def __init__(
         self,
-        response: Optional[Union[bytes, str]],
-        config: Optional[ParserConfig] = None,
+        response: bytes | str | None,
+        config: ParserConfig | None = None,
     ):
         """
         Initialize parser with response content
@@ -71,7 +69,7 @@ class HTMLParser:
         self.config = config or ParserConfig()
         self.soup = self.__create_soup(response)
 
-    def __create_soup(self, response: Optional[Union[bytes, str]]) -> BeautifulSoup:
+    def __create_soup(self, response: bytes | str | None) -> BeautifulSoup:
         """
         Create BeautifulSoup instance from response
 
@@ -83,7 +81,7 @@ class HTMLParser:
         """
         try:
             return BeautifulSoup(str(response), self.config.parser_type)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - boundary around bs4's own exception types
             raise ParsingError(f"Error creating soup: {e}")
 
     @property
@@ -103,7 +101,7 @@ class HTMLParser:
         """
         try:
             return [] if not self.soup.css else self.soup.css.select(selector)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - boundary around soupsieve's own exception types
             raise ParsingError(f"Error selecting elements: {e}")
 
     def prettify(self) -> str:
@@ -115,14 +113,14 @@ class HTMLParser:
         """
         try:
             return self.soup.prettify()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - boundary around bs4's own exception types
             raise ParsingError(f"Error prettifying content: {e}")
 
 
 class ParserContent:
     """Handler for parsing specific HTML content"""
 
-    def __init__(self, content: Optional[Tag]):
+    def __init__(self, content: Tag | None):
         """
         Initialize content parser
 
@@ -134,7 +132,7 @@ class ParserContent:
         self.config = ParserConfig()
 
     def get_content_from(
-        self, selector: str, content_type: Union[str, ContentType] = ContentType.STRING
+        self, selector: str, content_type: str | ContentType = ContentType.STRING
     ) -> str:
         """
         Extract content from element using selector
@@ -160,12 +158,10 @@ class ParserContent:
             return self.__extract_content(selected[0], content_type)
         except IndexError:
             return self.config.default_value
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - boundary around bs4's own exception types
             raise ParsingError(f"Error getting content: {e}")
 
-    def __extract_content(
-        self, element: Tag, content_type: Union[str, ContentType]
-    ) -> str:
+    def __extract_content(self, element: Tag, content_type: str | ContentType) -> str:
         """
         Extract specific type of content from element
 
@@ -193,7 +189,7 @@ class ParserContent:
                     return str(element.attrs.get("href", ""))
                 case _:
                     raise TypeError(f"Unknown content type: {content_type}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - boundary around bs4's own exception types
             raise ParsingError(f"Error extracting content: {e}")
 
     def prettify(self) -> str:
@@ -207,11 +203,11 @@ class ParserContent:
             return (
                 self.content.prettify() if self.content else self.config.default_value
             )
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - boundary around bs4's own exception types
             raise ParsingError(f"Error prettifying content: {e}")
 
 
-def create_parser(html_content: Union[bytes, str]) -> HTMLParser:
+def create_parser(html_content: bytes | str) -> HTMLParser:
     """
     Factory function to create parser instance
 

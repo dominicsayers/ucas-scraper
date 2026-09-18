@@ -1,20 +1,22 @@
-from typing import Any, Optional, Union, Dict
-from pathlib import Path
-import time
-import httpx
-import logging
 import json
-from .http_verb import HttpVerb
-from .http_error import HttpError
+import logging
+import time
+from pathlib import Path
+from typing import Any
+
+import httpx
+
 from .fetcher_config import FetcherConfig
-from .response_handler import ResponseHandler
 from .http_client import HttpClient
+from .http_error import HttpError
+from .http_verb import HttpVerb
+from .response_handler import ResponseHandler
 
 
 class Fetcher:
     """Main class for handling HTTP requests with retries and error handling"""
 
-    def __init__(self, config: Optional[FetcherConfig] = None):
+    def __init__(self, config: FetcherConfig | None = None):
         """
         Initialize Fetcher
 
@@ -74,7 +76,7 @@ class Fetcher:
         self.__apply_rate_limit(rate_limit_type)
         return self.fetch_json(uri)
 
-    def fetch(self, uri: str) -> Union[bytes, int, None]:
+    def fetch(self, uri: str) -> bytes | int | None:
         """
         Fetch content from URI using GET
 
@@ -91,7 +93,7 @@ class Fetcher:
 
     def fetch_with_rate_limit(
         self, uri: str, rate_limit_type: str = "universal"
-    ) -> Union[bytes, int, None]:
+    ) -> bytes | int | None:
         """
         Fetch content from URI with rate limiting
         """
@@ -99,8 +101,8 @@ class Fetcher:
         return self.fetch(uri)
 
     def post(
-        self, uri: str, payload: Dict[str, Any], headers: Dict[str, str]
-    ) -> Union[bytes, int, None]:
+        self, uri: str, payload: dict[str, Any], headers: dict[str, str]
+    ) -> bytes | int | None:
         """
         Send POST request
 
@@ -126,19 +128,17 @@ class Fetcher:
     def post_with_rate_limit(
         self,
         uri: str,
-        payload: Dict[str, Any],
-        headers: Dict[str, str],
+        payload: dict[str, Any],
+        headers: dict[str, str],
         rate_limit_type: str = "universal",
-    ) -> Union[bytes, int, None]:
+    ) -> bytes | int | None:
         """
         Fetch content from URI with rate limiting
         """
         self.__apply_rate_limit(rate_limit_type)
         return self.post(uri, payload, headers)
 
-    def request(
-        self, verb: HttpVerb, uri: str, **kwargs: Any
-    ) -> Union[bytes, int, None]:
+    def request(self, verb: HttpVerb, uri: str, **kwargs: Any) -> bytes | int | None:
         """
         Execute HTTP request with retries
 
@@ -155,8 +155,8 @@ class Fetcher:
             ValueError: If verb is unknown
         """
         for attempt in range(self.config.max_retries):
-            while True:
-                try:
+            try:
+                while True:
                     response = self.__execute_request(verb, uri, **kwargs)
                     result = ResponseHandler(
                         response.status_code, response.content, response.text
@@ -167,13 +167,13 @@ class Fetcher:
                         continue
 
                     return result
-                except (
-                    httpx.ConnectTimeout,
-                    httpx.ReadTimeout,
-                    httpx.RemoteProtocolError,
-                ) as e:
-                    self.__handle_retry(uri, attempt, e)
-                    continue
+            except (
+                httpx.ConnectTimeout,
+                httpx.ReadTimeout,
+                httpx.RemoteProtocolError,
+            ) as e:
+                self.__handle_retry(uri, attempt, e)
+                continue
 
         self.__handle_failure(uri)
         return None
@@ -240,7 +240,7 @@ class Fetcher:
 
 
 def create_fetcher(
-    max_retries: Optional[int] = None, timeout: Optional[float] = None
+    max_retries: int | None = None, timeout: float | None = None
 ) -> Fetcher:
     """
     Factory function to create Fetcher instance

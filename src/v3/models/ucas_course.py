@@ -1,12 +1,15 @@
 import json
-from typing import Any
 from functools import cached_property
+from typing import Any, ClassVar
 
 
 class UCASCourse:
-    ENTRY_REQUIREMENT_TYPES = {"A level": "a_level", "UCAS Tariff": "ucas_tariff"}
+    ENTRY_REQUIREMENT_TYPES: ClassVar[dict[str, str]] = {
+        "A level": "a_level",
+        "UCAS Tariff": "ucas_tariff",
+    }
 
-    TEMPLATE_ENTRY_REQUIREMENTS = {
+    TEMPLATE_ENTRY_REQUIREMENTS: ClassVar[dict[str, dict[str, Any]]] = {
         "a_level": {"offer": False, "requirements": ""},
         "ucas_tariff": {"offer": False, "requirements": ""},
     }
@@ -53,16 +56,16 @@ class UCASCourse:
                 if duration
                 else "Unknown"
             )
-        except KeyError as e:
+        except KeyError:
             print(self.options)
-            raise e
-        except TypeError as e:
+            raise
+        except TypeError:
             print(json.dumps(self.options, indent=4))
             print(
                 f"{self.id} - {self.provider['name']}, {self.course['courseTitle']} ({self.options['outcomeQualification']['caption']})"
             )
             print(duration)
-            raise e
+            raise
 
     @cached_property
     def entry_requirements(self) -> dict[str, Any]:

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, ClassVar
 
 from v3.models.ucas_course import UCASCourse
 
 
 @dataclass
 class Course:
-    VALID_GRADE_TYPES = {"UCAS tariff", "A level"}
+    VALID_GRADE_TYPES: ClassVar[set[str]] = {"UCAS tariff", "A level"}
 
     # Id
     ucas_id: str = ""
