@@ -1,5 +1,7 @@
 from typing import Any
+
 import httpx
+
 from v3.utils.fetcher.fetcher_config import FetcherConfig
 
 

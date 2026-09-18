@@ -1,7 +1,8 @@
-from dataclasses import dataclass
-from typing import Any
-from enum import Enum
 import json
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, ClassVar
+
 from v3.utils.fetcher.fetcher import Fetcher
 
 
@@ -28,7 +29,7 @@ class ApiConfig:
 class ApiHeaders:
     """Default headers for API requests"""
 
-    CONFIRMATION_RATE = {
+    CONFIRMATION_RATE: ClassVar[dict[str, str]] = {
         "Content-type": "application/json; charset=UTF-8",
     }
 
@@ -36,14 +37,14 @@ class ApiHeaders:
 class HistoricGrades:
     """Handles fetching and processing of historic grade data from UCAS"""
 
-    def __init__(self, fetcher: Fetcher = Fetcher()) -> None:
+    def __init__(self, fetcher: Fetcher | None = None) -> None:
         """
         Initialize HistoricGrades instance.
 
         Args:
             fetcher: Fetcher instance for making HTTP requests
         """
-        self.fetcher = fetcher
+        self.fetcher = fetcher or Fetcher()
 
     def historic_grades(self, ucas_id: str) -> dict[str, Any]:
         """

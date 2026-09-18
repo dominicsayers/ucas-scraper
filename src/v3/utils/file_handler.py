@@ -1,12 +1,10 @@
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Union, TypeVar, Generic, Optional
-import os
 import csv
 import json
+import os
 from abc import ABC, abstractmethod
-
-T = TypeVar("T")
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -19,11 +17,11 @@ class FileHandlerConfig:
         self.base_directory = os.environ.get("OUTPUT", self.base_directory)
 
 
-class FileHandlerWriter(ABC, Generic[T]):
+class FileHandlerWriter[T](ABC):
     """Abstract base class for different file handler writers"""
 
     @abstractmethod
-    def write(self, path: Path, content: T) -> None:
+    def write(self, path: Path, content: T) -> None:  # pragma: no cover - abstract
         pass
 
 
@@ -55,10 +53,13 @@ class CsvWriter(FileHandlerWriter[list[dict[str, str]]]):
     """Handles CSV file writing"""
 
     def write(
-        self, path: Path, content: list[dict[str, str]], headers: list[str] = []
+        self,
+        path: Path,
+        content: list[dict[str, str]],
+        headers: list[str] | None = None,
     ) -> None:
         with path.open("w", newline="") as file:
-            writer = csv.DictWriter(file, headers)
+            writer = csv.DictWriter(file, headers or [])
             writer.writeheader()
             writer.writerows(content)
 
@@ -66,7 +67,7 @@ class CsvWriter(FileHandlerWriter[list[dict[str, str]]]):
 class FileHandler:
     """Manages file file handler operations with improved error handling and type safety"""
 
-    def __init__(self, top_level: Union[str, int] = "data") -> None:
+    def __init__(self, top_level: str | int = "data") -> None:
         self.config = FileHandlerConfig()
         self.top_level = str(top_level)
         self.base_path = Path(self.config.base_directory) / self.top_level
@@ -96,7 +97,7 @@ class FileHandler:
         self,
         location: list[str],
         document: str,
-        content: Union[str, dict[str, str], list[str]],
+        content: str | dict[str, Any] | list[str],
     ) -> None:
         """Write content to either HTML, JSON or text file"""
         folder_path = self.__create_folder_path(location)
@@ -112,12 +113,12 @@ class FileHandler:
             elif isinstance(content, list):
                 output_path = folder_path / f"{document}.txt"
                 self.text_writer.write(output_path, content)
-        except IOError as e:
+        except OSError as e:
             print(f"Error writing file {output_path}: {e}")
 
     def read(
         self, location: list[str], document: str, fallback: bool = True
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Read JSON data from file with improved error handling"""
         folder_path = self.__create_folder_path(location)
         file_path = folder_path / f"{document}.json"

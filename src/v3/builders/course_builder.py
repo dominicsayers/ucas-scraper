@@ -1,14 +1,16 @@
 from dataclasses import asdict
-from v3.utils.config import Config
-from v3.utils.file_handler import FileHandler
+
 from v3.models.course import Course
 from v3.models.ucas_course import UCASCourse
+from v3.utils.config import Config
+from v3.utils.file_handler import FileHandler
+
 from .course_filter import CourseFilter
 
 
 class CourseBuilder:
-    def __init__(self, config: Config = Config()) -> None:
-        self.config = config
+    def __init__(self, config: Config | None = None) -> None:
+        self.config = config or Config()
         self.file_handler = FileHandler("data")
         self.course_filter = CourseFilter()
 
@@ -57,7 +59,8 @@ class CourseBuilder:
         )
         confirmation_rates_headers.sort(reverse=True)
 
-        self.file_handler.write_csv("courses", courses, list(courses[0].keys()))
+        if len(courses) > 0:
+            self.file_handler.write_csv("courses", courses, list(courses[0].keys()))
 
         if len(confirmation_rates) > 0:
             self.file_handler.write_csv(

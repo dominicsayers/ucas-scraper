@@ -1,4 +1,3 @@
-from typing import Optional, List, Union
 import os
 from urllib.parse import quote
 
@@ -11,12 +10,12 @@ from v3.utils.html_parser import HTMLParser
 class SearchService:
     """Handles course search and data collection from UCAS"""
 
-    def __init__(self, config: Config = Config()) -> None:
-        self.config = config
+    def __init__(self, config: Config | None = None) -> None:
+        self.config = config or Config()
         self.fetcher = Fetcher()
         self.file_handler = FileHandler("data")
 
-    def search_courses(self, search_term: Optional[str] = None) -> None:
+    def search_courses(self, search_term: str | None = None) -> None:
         """
         Execute course search and collect data.
 
@@ -32,7 +31,7 @@ class SearchService:
         finally:
             self.fetcher.close()
 
-    def __collect_course_ids(self, search_term: str) -> List[str]:
+    def __collect_course_ids(self, search_term: str) -> list[str]:
         """Collect course ids page by page"""
         page = 0
         course_ids = []
@@ -55,7 +54,7 @@ class SearchService:
 
     def __fetch_page(
         self, page: int, search_term: str, destination: str
-    ) -> Union[bytes, int, None]:
+    ) -> bytes | int | None:
         """Fetch a single page of search results"""
         url = (
             f"{self.config.url}/{self.config.path}"
@@ -66,7 +65,7 @@ class SearchService:
         )
         return self.fetcher.fetch(url)
 
-    def __process_page(self, response: bytes | int | None) -> List[str]:
+    def __process_page(self, response: bytes | int | None) -> list[str]:
         """Process a single page of search results"""
         if isinstance(response, int):
             return []
@@ -77,7 +76,7 @@ class SearchService:
         for course_html in html.select("app-courses-view app-course article"):
             try:
                 new_course_ids.append(f"{course_html.get('id')}\n")
-            except Exception as e:
+            except AttributeError as e:
                 print(f"\nError processing course: {e}")
 
         return new_course_ids
@@ -85,7 +84,7 @@ class SearchService:
     def __write_output(
         self,
         search_term: str,
-        course_ids: List[str],
+        course_ids: list[str],
     ) -> None:
         """Write output data to files"""
         # No subdirectory specified for output location

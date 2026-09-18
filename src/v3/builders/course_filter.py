@@ -1,7 +1,8 @@
-from typing import Any
+from typing import Any, ClassVar
+
+from v3.models.course import Course
 from v3.utils.config import Config
 from v3.utils.file_handler import FileHandler
-from v3.models.course import Course
 
 """
 {
@@ -36,12 +37,12 @@ from v3.models.course import Course
 
 
 class CourseFilter:
-    DEFAULT_CRITERIA: dict[str, list[dict[str, dict[str, list[str]]]]] = {
+    DEFAULT_CRITERIA: ClassVar[dict[str, list[dict[str, dict[str, list[str]]]]]] = {
         "criteria": []
     }
 
-    def __init__(self, config: Config = Config()) -> None:
-        self.config = config
+    def __init__(self, config: Config | None = None) -> None:
+        self.config = config or Config()
         self.file_handler = FileHandler("data")
 
         criteria_file = self.config.course_filter_criteria_file
